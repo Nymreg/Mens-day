@@ -45,7 +45,7 @@
           <h2 class="fw-bold text-white mb-2">EXISTING MEMBER</h2>
           <p class="text-white-50 mb-4">Welcome Back!</p>
 
-<form action="" method="post">
+<form action="login_conn_db.php" method="POST">
   <div class="input-group mb-3">
     <span class="input-group-text bg-transparent border-0">
       <i class="bi bi-person text-white-50"></i>
@@ -54,7 +54,7 @@
       type="text"
       class="form-control bg-transparent text-white border-0 border-bottom"
       placeholder="Enter Username"
-      name="username"
+      id="username" name="username" autocomplete="username"
       required
     />
   </div>
@@ -66,7 +66,7 @@
       type="password"
       class="form-control bg-transparent text-white border-0 border-bottom"
       placeholder="Enter Password"
-      name="password"
+      id="password" name="password" autocomplete="current-password"
       required
     />
   </div>
@@ -79,13 +79,13 @@
             <div class="text-white-50 mb-3">OR</div>
 
             <div class="d-flex justify-content-center gap-3 mb-4">
-              <button class="btn btn-outline-light rounded-circle">
+              <button type="button" class="btn btn-outline-light rounded-circle">
                 <i class="bi bi-google"></i>
               </button>
-              <button class="btn btn-outline-light rounded-circle">
+              <button type="button" class="btn btn-outline-light rounded-circle">
                 <i class="bi bi-facebook"></i>
               </button>
-              <button class="btn btn-outline-light rounded-circle">
+              <button type="button" class="btn btn-outline-light rounded-circle">
                 <i class="bi bi-apple"></i>
               </button>
             </div>

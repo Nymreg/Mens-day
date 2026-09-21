@@ -34,7 +34,8 @@ CREATE TABLE `transactions` (
   `quantity` int(11) DEFAULT NULL,
   `coupon_applied` varchar(50) DEFAULT NULL,
   `total_price` decimal(10,2) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -54,8 +55,6 @@ INSERT INTO `transactions` (`id`, `data_name`, `data_color`, `quantity`, `coupon
 --
 -- Indexes for table `transactions`
 --
-ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables

@@ -6,19 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$host = '127.0.0.1';
-$user = 'root';
-$pass = '';
-$db = 'mens_daydb';
-
-// Database Connection
-$conn = new mysqli($host, $user, $pass, $db);
-if ($conn->connect_error) {
-    error_log("Database Connection Failed: " . $conn->connect_error);
-    http_response_code(500);
-    echo "Internal server error!";
-    exit;
-}
+require_once dirname(__DIR__, 3) . '/config/database.php';
+$conn = databaseMysqli('product');
 
 // Parse Input Data
 $data = json_decode(file_get_contents('php://input'), true);

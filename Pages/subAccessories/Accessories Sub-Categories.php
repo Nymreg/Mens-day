@@ -36,7 +36,7 @@
       <!-- Right: Icons -->
       <div class="d-flex align-items-center gap-4">
         <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" /></a>
-        <a href="../Login Page/login.html"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24"
+        <a href="../Login Page/login.php"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24"
             alt="Profile" /></a>
         <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" width="24" alt="Cart" /></a>
       </div>
