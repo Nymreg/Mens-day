@@ -5,19 +5,8 @@ session_start();
 $username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
 $password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
 
-// Database connection details
-$db_server = "localhost";
-$db_user = "root";
-$db_pass = "";
-$db_name = "mens_daydb";
-
-// Create a database connection
-$conn = mysqli_connect($db_server, $db_user, $db_pass, $db_name);
-
-// Check connection
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+require_once dirname(__DIR__, 2) . '/config/database.php';
+$conn = databaseMysqli('mens_daydb');
 
 // Prepare a SQL query to check if the user exists
 $sql = "SELECT * FROM users WHERE username = ? AND password = ?";

@@ -1,0 +1,11 @@
+.git
+.agents
+.codex
+.env
+.env.*
+**/*.pem
+**/*.key
+Database Schema
+**/*.sql
+Pages/Backend Draft
+DEPLOYMENT.md

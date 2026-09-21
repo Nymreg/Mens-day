@@ -3,21 +3,9 @@
     $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_STRING);
     $password = filter_input(INPUT_POST, 'password1', FILTER_SANITIZE_STRING);
 
-    $db_server = "localhost";
-    $db_user = "root";
-    $db_pass = "";
-    $db_name = "mens_daydb";
-    $conn = "";
-
-        $conn = mysqli_connect($db_server, $db_user, $db_pass, $db_name);
-    
-    if ($conn->connect_error){
-        die('Connect Error(' . $conn->connect_errno .' )' . $conn->connect_error);
-    }
-    else {
-        $stmt = $conn->prepare("INSERT INTO users (username, email, password) 
-                                VALUES (?,?,?)");
-    }
+    require_once dirname(__DIR__, 2) . '/config/database.php';
+    $conn = databaseMysqli('mens_daydb');
+    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?,?,?)");
 
     if($stmt === false){
         die ('Prepare failed: ' . $conn->error);

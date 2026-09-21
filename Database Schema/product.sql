@@ -30,7 +30,8 @@ SET time_zone = "+00:00";
 CREATE TABLE `admin` (
   `ID` int(10) NOT NULL,
   `Name` varchar(500) NOT NULL,
-  `Stock` int(100) NOT NULL
+  `Stock` int(100) NOT NULL,
+  PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -69,7 +70,8 @@ CREATE TABLE `table1` (
   `ID` int(10) NOT NULL,
   `Name` varchar(500) NOT NULL,
   `Quantity` int(10) NOT NULL,
-  `Price` decimal(30,2) NOT NULL
+  `Price` decimal(30,2) NOT NULL,
+  PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -90,7 +92,8 @@ CREATE TABLE `transaction` (
   `ID` int(10) NOT NULL,
   `Total` decimal(11,2) NOT NULL,
   `Discount` int(10) NOT NULL,
-  `Discounted` decimal(11,2) NOT NULL
+  `Discounted` decimal(11,2) NOT NULL,
+  PRIMARY KEY (`ID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -114,7 +117,8 @@ CREATE TABLE `transactions` (
   `quantity` int(11) DEFAULT NULL,
   `coupon_applied` varchar(50) DEFAULT NULL,
   `total_price` decimal(10,2) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -142,26 +146,18 @@ INSERT INTO `transactions` (`id`, `data_name`, `data_color`, `quantity`, `coupon
 --
 -- Indexes for table `admin`
 --
-ALTER TABLE `admin`
-  ADD PRIMARY KEY (`ID`);
 
 --
 -- Indexes for table `table1`
 --
-ALTER TABLE `table1`
-  ADD PRIMARY KEY (`ID`);
 
 --
 -- Indexes for table `transaction`
 --
-ALTER TABLE `transaction`
-  ADD PRIMARY KEY (`ID`);
 
 --
 -- Indexes for table `transactions`
 --
-ALTER TABLE `transactions`
-  ADD PRIMARY KEY (`id`);
 
 --
 -- AUTO_INCREMENT for dumped tables

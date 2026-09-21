@@ -1,19 +1,8 @@
 <?php
 // admin_actions.php
 
-// Database configuration (replace with your actual credentials)
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "mens_daydb";
-
-// Establish database connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die(json_encode(["success" => false, "message" => "Connection failed: " . $conn->connect_error]));
-}
+require_once dirname(__DIR__, 2) . '/config/database.php';
+$conn = databaseMysqli('mens_daydb');
 
 // Set response content type to JSON
 header('Content-Type: application/json');
@@ -41,7 +30,6 @@ function addAccount($conn) {
     $request_body = file_get_contents('php://input');
     $data = json_decode($request_body, true); // Decode JSON into an associative array
 
-    error_log("Decoded JSON data (add): " . json_encode($data)); // Log decoded data
 
     $username = $data['username'] ?? ''; // Access 'username' from the decoded array
     $email = $data['email'] ?? ''; // Access 'email'
