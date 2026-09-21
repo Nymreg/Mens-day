@@ -9,7 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $host = '127.0.0.1';
 $user = 'root';
 $pass = '';
-$db = 'product';
+$db = 'mens_daydb';
 
 // Database Connection
 $conn = new mysqli($host, $user, $pass, $db);

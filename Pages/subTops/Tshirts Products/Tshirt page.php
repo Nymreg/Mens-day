@@ -608,14 +608,18 @@
       }
       cartSubtotalLabel.textContent = `Subtotal (${qtyTotal} item${qtyTotal !== 1 ? "s" : ""
         })`;
-      cartCount.textContent = qtyTotal;
+        if (cartCount){
+          cartCount.textContent = qtyTotal;
+        }
 
       if (cart.length === 0) {
         cartItemsList.innerHTML =
           '<div style="padding:32px 0 12px 0;text-align:center;color:#888;">Your cart is empty.</div>';
         cartSubtotalAmount.textContent = "$0";
         cartSubtotalLabel.textContent = "Subtotal (0 items)";
-        cartCount.textContent = "0";
+        if (cartCount){
+          cartCount.textContent = "0";
+        }
       }
     }
 

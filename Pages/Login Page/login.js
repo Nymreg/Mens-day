@@ -4,10 +4,9 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent default form submission
 
-    // Get form data
-    const formData = new FormData(form);
-    const username = formData.get("username");
-    const password = formData.get("password");
+    // Get values directly and safely from form elements
+    const username = form.elements["username"].value.trim();
+    const password = form.elements["password"].value.trim();
 
     // Validate inputs
     if (!username || !password) {
@@ -15,8 +14,11 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    // Package the form data for the fetch request
+    const formData = new FormData(form);
+
     // Send login request to the server
-    fetch("login_conn_db.php", {
+    fetch("login_conn_db_unsecured.php", {
       method: "POST",
       body: formData,
     })

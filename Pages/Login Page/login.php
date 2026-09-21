@@ -45,7 +45,7 @@
           <h2 class="fw-bold text-white mb-2">EXISTING MEMBER</h2>
           <p class="text-white-50 mb-4">Welcome Back!</p>
 
-<form action="login.php" method="post">
+<form action="" method="post">
   <div class="input-group mb-3">
     <span class="input-group-text bg-transparent border-0">
       <i class="bi bi-person text-white-50"></i>
@@ -94,7 +94,6 @@
               Don't have account?
               <a href="signup.php" class="text-white fw-bold">Register Now</a>
             </div>
-          </form>
         </div>
       </div>
     </div>
