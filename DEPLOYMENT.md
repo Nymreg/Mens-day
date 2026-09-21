@@ -60,6 +60,47 @@ and AUTO_INCREMENT counters are preserved. Password capacity is now 255 characte
 
 ## Remaining checks before public launch
 
+### Root 403 diagnosis (2026-09-22)
+
+Read-only checks against the live service returned:
+
+| URL | Status |
+| --- | --- |
+| `/` | 403 |
+| `/index.php` | 404 |
+| `/Pages/Landing%20Page/Landing%20Page%20Men%27s%20Day.php` | 200 |
+| `/Pages/discount.css` | 200 |
+| `/config/database.php` | 404 |
+
+The deployed root has no available index.php, while Apache can serve the actual
+landing page. With directory listing disabled, the root request returns 403.
+The current tracked Dockerfile explicitly copies index.php, and .dockerignore
+does not exclude it. These live responses do not match the expected current
+image (the config directory should also return 403 under its deny rule).
+The exact reason for the deployment mismatch requires the Render deployment
+commit, build log, and effective runtime configuration; it cannot be determined
+from the repository alone.
+
+In Render, verify the linked repository and deployment branch include these
+changes, clear Root Directory (use repository root), set Dockerfile Path to
+`./Dockerfile` and Docker Build Context Directory to `.`, and leave Docker Command
+unset. Ensure no disk mount hides `/var/www/html`. Deploy the latest commit using
+**Clear build cache & deploy**. Keep existing database variables and secret files.
+
+The Dockerfile now normalizes directories to 0755 and files to 0644 and fails
+the build if Apache's www-data user cannot read the root index, landing page,
+or database helper. It also checks the root PHP syntax and Apache configuration.
+The security configuration remains unchanged: directory listing is disabled,
+config access is denied, and SQL/certificate/key/environment files are denied.
+The base PHP Apache image supplies DirectoryIndex index.php index.html and the
+PHP handler. No global access grant or writable application tree was added.
+
+After deployment, verify `/index.php` and `/` redirect to the landing page,
+the landing page and assets return 200, and `/config/database.php` returns 403.
+Docker is unavailable locally, so the new image checks must execute on Render.
+
+### Launch checklist
+
 1. Commit/push the reviewed changes and deploy the Docker service on Render.
 2. Verify `/` redirects to the landing page, and check navigation and assets.
 3. Test signup, login, account management, and a checkout; confirm writes reach
