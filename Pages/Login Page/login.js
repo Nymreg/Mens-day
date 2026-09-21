@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Get values directly and safely from form elements
     const username = form.elements["username"].value.trim();
-    const password = form.elements["password"].value.trim();
+    const password = form.elements["password"].value;
 
     // Validate inputs
     if (!username || !password) {
@@ -18,11 +18,27 @@ document.addEventListener("DOMContentLoaded", function () {
     const formData = new FormData(form);
 
     // Send login request to the server
-    fetch("login_conn_db_unsecured.php", {
+    fetch("login_conn_db.php", {
       method: "POST",
       body: formData,
     })
-      .then((response) => response.json())
+       .then(async (response) => {
+        const body = await response.text();
+        let data;
+        try {
+          data = JSON.parse(body);
+        } catch {
+          throw new Error("Unable to sign in right now. Please try again later.");
+        }
+        if (!data || typeof data.message !== "string" ||
+            !["success", "error"].includes(data.status)) {
+          throw new Error("Unable to sign in right now. Please try again later.");
+        }
+        if (!response.ok) {
+          return { status: "error", message: data.message };
+        }
+        return data;
+      })
       .then((data) => {
         if (data.status === "success") {
           alert(`✅ ${data.message}`);
@@ -32,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       })
       .catch((error) => {
-        console.error("Error:", error);
+        // Never log server response bodies or submitted credentials.
         alert("❗ An error occurred. Please try again later.");
       });
 
