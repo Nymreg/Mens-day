@@ -98,7 +98,7 @@
       </div>
     </div>
 
-    <script src="login.js"></script>
+    <script src="login.js?v=<?= hash_file('sha256', __DIR__ . '/login.js') ?>"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>
