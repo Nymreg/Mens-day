@@ -1,46 +1,46 @@
 <?php
 session_start();
-
-// Sanitize input data
-$username = filter_input(INPUT_POST, 'username', FILTER_SANITIZE_STRING);
-$password = filter_input(INPUT_POST, 'password', FILTER_SANITIZE_STRING);
-
-require_once dirname(__DIR__, 2) . '/config/database.php';
-$conn = databaseMysqli('mens_daydb');
-
-// Prepare a SQL query to check if the user exists
-$sql = "SELECT * FROM users WHERE username = ? AND password = ?";
-$stmt = $conn->prepare($sql);
-
-if ($stmt) {
-    // Bind parameters
-    $stmt->bind_param("ss", $username, $password);
-
-    // Execute the query
+header('Content-Type: application/json; charset=utf-8');
+require_once __DIR__ . '/passwords.php';
+function loginError(string $message, int $status = 400): never
+{
+    unset($_SESSION['username'], $_SESSION['is_admin']);
+    http_response_code($status);
+    exit(json_encode(['status' => 'error', 'message' => $message]));
+}
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Allow: POST');
+    loginError('Please submit the login form.', 405);
+}
+$username = is_string($_POST['username'] ?? null) ? trim($_POST['username']) : '';
+$password = $_POST['password'] ?? null;
+if ($username === '' || !is_string($password) || $password === '') {
+    loginError('Please fill in both username and password.');
+}
+try {
+    require_once dirname(__DIR__, 2) . '/config/database.php';
+    $conn = databaseMysqli('mens_daydb');
+    $stmt = $conn->prepare('SELECT id, username, password FROM users WHERE username = ?');
+    $stmt->bind_param('s', $username);
     $stmt->execute();
-
-    // Fetch the result
     $result = $stmt->get_result();
-
-    // Check if the user exists
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        // User exists
+    // The existing data can contain duplicate usernames.
+    while ($row = $result->fetch_assoc()) {
+        if (!accountPasswordMatches($password, $row['password'])) continue;
+        if (password_needs_rehash($row['password'], PASSWORD_DEFAULT)) {
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            // Do not overwrite a concurrently changed password.
+            $update = $conn->prepare('UPDATE users SET password = ? WHERE id = ? AND BINARY password = BINARY ?');
+            $update->bind_param('sis', $hash, $row['id'], $row['password']);
+            $update->execute();
+            if ($update->affected_rows !== 1) loginError('Please try signing in again.', 409);
+        }
+        session_regenerate_id(true);
         $_SESSION['username'] = $row['username'];
         $_SESSION['is_admin'] = ($row['username'] === 'admin');
-        echo json_encode(['status' => 'success', 'message' => "Welcome back, $username!"]);
-    } else {
-        // User does not exist
-        echo json_encode(['status' => 'error', 'message' => 'Invalid username or password. Please try again.']);
-        $_SESSION['is_admin'] = false;
+        exit(json_encode(['status' => 'success', 'message' => 'Welcome back!']));
     }
-
-    // Close the statement
-    $stmt->close();
-} else {
-    echo json_encode(['status' => 'error', 'message' => 'Error preparing statement.']);
+    loginError('Invalid username or password. Please try again.', 401);
+} catch (Throwable $error) {
+    loginError('Unable to sign in right now. Please try again later.', 503);
 }
-
-// Close the connection
-$conn->close();
-?>

@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", function () {
     form.addEventListener('submit', function (event) {
         const username = usernameInput.value.trim();
         const email = emailInput.value.trim();
-        const password = password1Input.value.trim();
-        const confirmPassword = password2Input.value.trim();
+        const password = password1Input.value;
+        const confirmPassword = password2Input.value;
 
         if (username === "" || email === "" || password === "" || confirmPassword === "") {
             alert("❗ Please fill in all necessary information.");

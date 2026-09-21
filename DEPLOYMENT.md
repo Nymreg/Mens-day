@@ -105,12 +105,13 @@ Docker is unavailable locally, so the new image checks must execute on Render.
 2. Verify `/` redirects to the landing page, and check navigation and assets.
 3. Test signup, login, account management, and a checkout; confirm writes reach
    `mens_daydb.users` and `product.transactions` respectively.
-4. Address pre-existing authentication problems before public launch: signup and
-   admin account creation store plaintext passwords, login compares plaintext,
-   and `admin_actions.php` has no server-side authorization check. These behaviors
-   were not rewritten in this deployment change. The dumped users include
-   truncated bcrypt hashes that cannot be repaired by widening the column; those
-   users need password resets alongside a password_hash/password_verify migration.
+4. Signup and admin account creation now hash passwords. Login verifies hashes
+   and upgrades exactly matching legacy plaintext passwords before creating a
+   session. Truncated hashes, legacy values beginning with `$`, and passwords
+   longer than bcrypt's 72-byte limit require a password reset. No schema change
+   is needed if the deployed users.password is already VARCHAR(255).
+   Existing admin authorization remains a separate issue: admin_actions.php has
+   no server-side authorization check and admin status is based on username.
 5. PHP sessions are currently filesystem-based. Redeploys can log users out;
    multiple instances need shared session storage.
 
@@ -172,3 +173,59 @@ checkout queries and response behavior are preserved:
 - `Pages/subTops/Shirts Products/save_transaction.php`
 - `Pages/subTops/Sweaters Products/save_transaction.php`
 - `Pages/subTops/Tshirts Products/save_transaction.php`
+
+## Authentication fix file manifest
+
+Canonical forms, legacy redirects, validation, password hashing, and exact-match
+legacy migration were implemented. All other page edits only update authentication
+or landing-page links. No CSS, schema, or TLS helper changes were made.
+
+Validation: 70 PHP files passed syntax checks; 10 password behavior checks passed;
+canonical form names/actions and obsolete-link scans passed. Live Aiven writes
+and browser flows still require testing after deployment.
+
+Files changed in this authentication update:
+
+- `DEPLOYMENT.md`
+- `Pages/Admin Page/account_management.php`
+- `Pages/Admin Page/admin_actions.php`
+- `Pages/Landing Page/Landing Page Men's Day.php`
+- `Pages/Login Page/login.html`
+- `Pages/Login Page/login.php`
+- `Pages/Login Page/login_conn_db.php`
+- `Pages/Login Page/signin.html`
+- `Pages/Login Page/signup.html`
+- `Pages/Login Page/signup.js`
+- `Pages/Login Page/signup.php`
+- `Pages/Login Page/signup_conn_db.php`
+- `Pages/Product Detail Page/ProDet.php`
+- `Pages/Search Page/search.php`
+- `Pages/Store Page/Stores.php`
+- `Pages/subAccessories/Accessories Sub-Categories.php`
+- `Pages/subAccessories/Belts Pages/Belts Page.php`
+- `Pages/subAccessories/Bracelet Products/Bracelet Page.php`
+- `Pages/subAccessories/Hats Products/Hats Page.php`
+- `Pages/subAccessories/Rings Products/Rings page.php`
+- `Pages/subBottoms/Bottoms Sub-Categories.php`
+- `Pages/subBottoms/Chinos Products/Chinos page.php`
+- `Pages/subBottoms/Shorts Products/Shorts page.php`
+- `Pages/subBottoms/Sweatpants Products/Sweatpants page.php`
+- `Pages/subBottoms/Trouser Products/Trouser page.php`
+- `Pages/subFootwear/Boots Products/Boots page.php`
+- `Pages/subFootwear/Dress Shoes Products/Dress Shoes page.php`
+- `Pages/subFootwear/Footwear Sub-Categories.php`
+- `Pages/subFootwear/Sandals Products/Sandals page.php`
+- `Pages/subOutwear/Blazer Products/Blazer page.php`
+- `Pages/subOutwear/Coats Products/Coats page.php`
+- `Pages/subOutwear/Jackets Products/Jackets page.php`
+- `Pages/subOutwear/Outerwear Sub-Categories.php`
+- `Pages/subOutwear/Raincoat Products/Raincoat page.php`
+- `Pages/subOutwear/Vest Products/Vest page.php`
+- `Pages/subTops/Hoodies Products/Hoodies page.php`
+- `Pages/subTops/Polo Shirts Products/Polo Shirts page.php`
+- `Pages/subTops/Shirts Products/Shirts page.php`
+- `Pages/subTops/Sweaters Products/Sweaters page.php`
+- `Pages/subTops/Tops Sub-Categories.php`
+- `Pages/subTops/Tshirts Products/Tshirt page.php`
+- `Pages/Login Page/passwords.php`
+- `tests/passwords.php`

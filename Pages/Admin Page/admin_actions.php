@@ -58,8 +58,14 @@ function addAccount($conn) {
     }
     $stmt->close();
 
+    require_once dirname(__DIR__) . '/Login Page/passwords.php';
+    if (!is_string($password) || !passwordCanBeHashed($password)) {
+        echo json_encode(['success' => false, 'message' => 'Invalid password length or format.']);
+        return;
+    }
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $username, $email, $password);
+    $stmt->bind_param("sss", $username, $email, $passwordHash);
 
     if ($stmt->execute()) {
         echo json_encode(["success" => true, "message" => "Account created successfully"]);
@@ -77,7 +83,6 @@ function deleteAccount($conn) {
     $request_body = file_get_contents('php://input');
     $data = json_decode($request_body, true); // Decode JSON
 
-    error_log("Decoded JSON data (delete): " . json_encode($data)); // Log decoded data
 
     $find = $data['find'] ?? []; // Access 'find' from the decoded data
     error_log("\$find: " . json_encode($find));
@@ -140,7 +145,6 @@ function updateAccountInline($conn) {
     $request_body = file_get_contents('php://input');
     $data = json_decode($request_body, true); // Decode JSON into an associative array
 
-    error_log("Decoded JSON data: " . json_encode($data)); // Log the decoded data
 
     $id = $data['id'] ?? ''; // Access 'id' from the decoded array
     $username = $data['username'] ?? ''; // Access 'username'

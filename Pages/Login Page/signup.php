@@ -45,7 +45,7 @@
           <h2 class="fw-bold text-white mb-2">NEW MEMBER</h2>
           <p class="text-white-50 mb-4">Welcome</p>
 
-          <form class="w-100" action="signup_conn_db.php" method="post">
+          <form class="w-100" action="signup_conn_db.php" method="POST">
             <div class="input-group mb-3">
               <span class="input-group-text bg-transparent border-0">
                 <i class="bi bi-person text-white-50"></i>
@@ -55,7 +55,7 @@
                 class="form-control bg-transparent text-white border-0 border-bottom"
                 placeholder="Enter Username"
                 id="username"
-                name = "username"
+                name="username" required
               />
             </div>
             <div class="input-group mb-3">
@@ -63,11 +63,11 @@
                   <i class="bi bi-envelope text-white-50"></i>
                 </span>
                 <input
-                  type="text"
+                  type="email"
                   class="form-control bg-transparent text-white border-0 border-bottom"
                   placeholder="Enter Email"
                   id="email"
-                  name = "email"
+                  name="email" required
                 />
               </div>
               <div class="input-group mb-4">
@@ -79,7 +79,7 @@
                   class="form-control bg-transparent text-white border-0 border-bottom"
                   placeholder="Enter Password"
                   id="password1"
-                  name = "password1"
+                  name="password1" required
                 />
                 <span class="input-group-text bg-transparent border-0">
                   <i class="bi bi-eye-slash text-white-50" id="togglePassword1" style="cursor: pointer;"></i>
@@ -95,7 +95,7 @@
                   class="form-control bg-transparent text-white border-0 border-bottom"
                   placeholder="Confirm Password"
                   id="password2"
-                  name ="password2"
+                  name="password2" required
                 />
                 <span class="input-group-text bg-transparent border-0">
                   <i class="bi bi-eye-slash text-white-50" id="togglePassword2" style="cursor: pointer;"></i>
@@ -103,12 +103,12 @@
               </div>
               
 
-              <a href="login.html">
+
                 <button
                   type="submit"
                   class="btn btn-light rounded-pill px-5 py-2 mb-3"
                   id="submit"
-                ><a href="#"></a>
+                >
                   Continue <i class="bi bi-arrow-right"></i>
                 </button>
               
@@ -116,13 +116,13 @@
             <div class="text-white-50 mb-3">OR</div>
 
             <div class="d-flex justify-content-center gap-3 mb-4">
-              <button class="btn btn-outline-light rounded-circle">
+              <button type="button" class="btn btn-outline-light rounded-circle">
                 <i class="bi bi-google"></i>
               </button>
-              <button class="btn btn-outline-light rounded-circle">
+              <button type="button" class="btn btn-outline-light rounded-circle">
                 <i class="bi bi-facebook"></i>
               </button>
-              <button class="btn btn-outline-light rounded-circle">
+              <button type="button" class="btn btn-outline-light rounded-circle">
                 <i class="bi bi-apple"></i>
               </button>
             </div>
