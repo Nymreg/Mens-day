@@ -10,6 +10,13 @@ COPY docker/apache-security.conf /etc/apache2/conf-available/app-security.conf
 COPY docker/app-site.conf /etc/apache2/sites-available/000-default.conf
 RUN a2enconf app-security
 
+COPY docker/app-entrypoint.sh /usr/local/bin/app-entrypoint
+RUN sed -i 's/\r$//' /usr/local/bin/app-entrypoint \
+    && chmod 0755 /usr/local/bin/app-entrypoint \
+    && sh -n /usr/local/bin/app-entrypoint
+ENTRYPOINT ["app-entrypoint"]
+CMD ["apache2-foreground"]
+
 COPY Pages/ /var/www/html/Pages/
 COPY config/ /var/www/html/config/
 COPY index.php /var/www/html/index.php
