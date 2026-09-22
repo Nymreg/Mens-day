@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/passwords.php';
+require_once dirname(__DIR__, 2) . '/config/session.php';
 function signupError(string $message, int $status = 400): never
 {
     http_response_code($status);
@@ -12,6 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     signupError('Please submit the signup form.', 405);
 }
+if (!appValidCsrf($_POST['csrf_token'] ?? null)) {
+    signupError('Please reload the signup page and try again.', 403);
+}
 $username = is_string($_POST['username'] ?? null) ? trim($_POST['username']) : '';
 $email = is_string($_POST['email'] ?? null) ? trim($_POST['email']) : '';
 $password = $_POST['password1'] ?? null;
@@ -20,6 +24,9 @@ if ($username === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)
     || !is_string($password) || $password === '' || !is_string($confirmation)
     || $confirmation === '' || $password !== $confirmation) {
     signupError('Enter a username, a valid email, and matching passwords.');
+}
+if (strlen($username) > 20 || strlen($email) > 30) {
+    signupError('Username must be at most 20 bytes and email at most 30 bytes.');
 }
 if (!passwordCanBeHashed($password)) {
     signupError('Password must contain no null bytes and be at most 72 bytes.');

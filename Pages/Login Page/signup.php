@@ -1,3 +1,7 @@
+<?php
+require_once dirname(__DIR__, 2) . '/config/session.php';
+header('Cache-Control: no-store');
+?>
 <!DOCTYPE html>
 <html lang="en"> 
   <head>
@@ -46,6 +50,7 @@
           <p class="text-white-50 mb-4">Welcome</p>
 
           <form class="w-100" action="signup_conn_db.php" method="POST">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars(appCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
             <div class="input-group mb-3">
               <span class="input-group-text bg-transparent border-0">
                 <i class="bi bi-person text-white-50"></i>

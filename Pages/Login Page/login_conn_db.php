@@ -14,7 +14,7 @@ register_shutdown_function(static function (): void {
 });
 function loginError(string $message, int $status = 400): never
 {
-    unset($_SESSION['username'], $_SESSION['is_admin']);
+    unset($_SESSION['username'], $_SESSION['is_admin'], $_SESSION['user_id']);
     http_response_code($status);
     exit(json_encode(['status' => 'error', 'message' => $message]));
 }
@@ -28,8 +28,13 @@ if ($username === '' || !is_string($password) || $password === '') {
     loginError('Please fill in both username and password.');
 }
 try {
-    if (!session_start()) {
+    require_once dirname(__DIR__, 2) . '/config/session.php';
+    if (session_status() !== PHP_SESSION_ACTIVE) {
         loginError('Unable to start your session. Please try again later.', 503);
+    }
+    if (!appValidCsrf($_POST['csrf_token'] ?? null)) {
+        http_response_code(403);
+        exit(json_encode(['status' => 'error', 'message' => 'Please reload the login page and try again.']));
     }
     require_once __DIR__ . '/passwords.php';
     require_once dirname(__DIR__, 2) . '/config/database.php';
@@ -53,7 +58,10 @@ try {
             loginError('Unable to start your session. Please try again later.', 503);
         }
         $_SESSION['username'] = $row['username'];
-        $_SESSION['is_admin'] = ($row['username'] === 'admin');
+        $_SESSION['user_id'] = (int) $row['id'];
+        require_once dirname(__DIR__, 2) . '/config/session.php';
+        $_SESSION['is_admin'] = appIsAdmin();
+        unset($_SESSION['csrf_token']);
         exit(json_encode(['status' => 'success', 'message' => 'Welcome back!']));
     }
     loginError('Invalid username or password. Please try again.', 401);

@@ -27,15 +27,15 @@
       <!-- Left: Menu -->
       <div class="d-flex align-items-center gap-4">
         <a class="nav-link active" href="../../Landing Page/Landing Page Men's Day.php">Home</a>
-        <a class="nav-link" href="#">About</a>
+        <a class="nav-link" href="/Pages/About%20Us%20Page/About%20us.php">About</a>
         <a class="nav-link" href="#">Stories</a>
       </div>
 
       <div class="d-flex align-items-center gap-4">
-        <a href="#">
+        <a href="/Pages/Search%20Page/search.php">
           <img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" />
         </a>
-        <a href="../Login Page/login.php">
+        <a href="/Pages/Login%20Page/account.php">
           <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24" alt="Profile" />
         </a>
         <a href="#" id="cartIcon">
@@ -323,14 +323,14 @@
         <!-- Account -->
         <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-4 mb-lg-0">
           <div class="footer-title">Acount</div>
-          <a href="#">Log In</a>
-          <a href="#">Sign Up</a>
+          <a href="/Pages/Login%20Page/login.php">Log In</a>
+          <a href="/Pages/Login%20Page/signup.php">Sign Up</a>
           <a href="#">Redeem a Gift Card</a>
         </div>
         <!-- Company -->
         <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-4 mb-lg-0">
           <div class="footer-title">Company</div>
-          <a href="#">About</a>
+          <a href="/Pages/About%20Us%20Page/About%20us.php">About</a>
           <a href="#">Environmental Initiatives</a>
           <a href="#">Factories</a>
           <a href="#">DEI</a>
@@ -680,6 +680,7 @@
           updateCartUI();
           closeCartModal();
         })
+        .catch(() => alert("Unable to complete checkout. Your cart has been kept; please try again."))
 
     });
 

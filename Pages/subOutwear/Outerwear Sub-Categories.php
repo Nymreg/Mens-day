@@ -41,10 +41,10 @@
 
       <!-- Right: Icons -->
       <div class="ms-0 d-flex align-items-center gap-4">
-        <a href="#">
+        <a href="/Pages/Search%20Page/search.php">
           <img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" />
         </a>
-        <a href="../Login Page/login.php">
+        <a href="/Pages/Login%20Page/account.php">
           <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24" alt="Profile" />
         </a>
         <a href="#" id="cartIcon">

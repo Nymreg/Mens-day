@@ -1,5 +1,6 @@
 <?php
-session_start();
+require_once dirname(__DIR__, 2) . '/config/session.php';
+header('Cache-Control: no-store');
 ?>
 
 <!DOCTYPE html>
@@ -946,17 +947,17 @@ session_start();
         <a class="nav-link " href="../About Us Page/About us.php">About</a>
         <a class="nav-link" href="../subTops/Tops Sub-Categories.php">Products</a>
         <?php
-            if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true) {
+            if (appIsAdmin()) {
                 echo '<a class="nav-link" href="../Admin Page/account_management.php">Admin</a>'; // Assuming your admin page is in an 'admin' folder
             }
             ?>
       </div>
 
       <div class="d-flex align-items-center gap-4">
-        <a href="#">
+        <a href="/Pages/Search%20Page/search.php">
           <img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" />
         </a>
-        <a href="../Login Page/login.php">
+        <a href="/Pages/Login%20Page/account.php">
           <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24" alt="Profile" />
         </a>
         <a href="#" id="cartIcon">
@@ -1357,7 +1358,7 @@ session_start();
         </div>
       </div>
 
-      <div id="carouselExampleDark" class="carousel carousel-dark slide">
+      <div id="carouselExampleDark1" class="carousel carousel-dark slide">
         <div class="carousel-indicators">
           <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active"
             aria-current="true" aria-label="Slide 1"></button>
@@ -1465,7 +1466,7 @@ session_start();
           </div>
         </div>
 
-        <div id="carouselExampleDark" class="carousel carousel-dark slide">
+        <div id="carouselExampleDark2" class="carousel carousel-dark slide">
           <div class="carousel-indicators">
             <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active"
               aria-current="true" aria-label="Slide 1"></button>
@@ -1656,7 +1657,7 @@ session_start();
           </div>
         </div>
 
-        <div id="carouselExampleDark" class="carousel carousel-dark slide">
+        <div id="carouselExampleDark3" class="carousel carousel-dark slide">
           <div class="carousel-indicators">
             <button type="button" data-bs-target="#testimonialCarousel" data-bs-slide-to="0" class="active"
               aria-current="true" aria-label="Slide 1"></button>
@@ -1701,16 +1702,6 @@ session_start();
     </div>
   </div>
 
-  <!-- Cart Modal Overlay & Panel -->
-  <div class="cart-modal-overlay" id="cartModalOverlay">
-    <aside class="cart-modal" id="cartModal" tabindex="-1" aria-modal="true">
-      <!-- Modal Header -->
-      <div class="cart-modal-header">
-        <div class="cart-modal-title">Your Cart</div>
-        <button class="cart-modal-close" id="cartModalClose" aria-label="Close">
-          &times;
-        </button>
-      </div>
       <!-- Cart Modal -->
       <div class="cart-modal-overlay" id="cartModalOverlay">
         <aside class="cart-modal" id="cartModal" tabindex="-1" aria-modal="true">
@@ -1737,21 +1728,19 @@ session_start();
         </aside>
       </div>
 
-  </div>
-
   <div class="container">
     <div class="row justify-content-between align-items-start">
       <!-- Account -->
       <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-4 mb-lg-0">
         <div class="footer-title">Acount</div>
-        <a href="#">Log In</a>
-        <a href="#">Sign Up</a>
+        <a href="/Pages/Login%20Page/login.php">Log In</a>
+        <a href="/Pages/Login%20Page/signup.php">Sign Up</a>
         <a href="#">Redeem a Gift Card</a>
       </div>
       <!-- Company -->
       <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-4 mb-lg-0">
         <div class="footer-title">Company</div>
-        <a href="#">About</a>
+        <a href="/Pages/About%20Us%20Page/About%20us.php">About</a>
         <a href="#">Environmental Initiatives</a>
         <a href="#">Factories</a>
         <a href="#">DEI</a>

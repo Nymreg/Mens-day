@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Details</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="about-us.css" />
+  <link rel="stylesheet" href="ProDet.css" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"></script>
 </head>
 <link rel="stylesheet" href="ProDet.css" />
@@ -42,10 +42,10 @@
 
       <!-- Right: Icons -->
       <div class="ms-0 d-flex align-items-center gap-4">
-        <a href="#">
+        <a href="/Pages/Search%20Page/search.php">
           <img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" />
         </a>
-        <a href="../Login Page/login.php">
+        <a href="/Pages/Login%20Page/account.php">
           <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24" alt="Profile" />
         </a>
         <a href="#" id="cartIcon">
@@ -288,14 +288,14 @@
                 <!-- Account -->
                 <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-4 mb-lg-0">
                   <div class="footer-title">Acount</div>
-                  <a href="#">Log In</a>
-                  <a href="#">Sign Up</a>
+                  <a href="/Pages/Login%20Page/login.php">Log In</a>
+                  <a href="/Pages/Login%20Page/signup.php">Sign Up</a>
                   <a href="#">Redeem a Gift Card</a>
                 </div>
                 <!-- Company -->
                 <div class="col-12 col-sm-6 col-md-3 col-lg-2 mb-4 mb-lg-0">
                   <div class="footer-title">Company</div>
-                  <a href="#">About</a>
+                  <a href="/Pages/About%20Us%20Page/About%20us.php">About</a>
                   <a href="#">Environmental Initiatives</a>
                   <a href="#">Factories</a>
                   <a href="#">DEI</a>

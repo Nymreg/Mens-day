@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
                 },
             };
             if (body) {
@@ -131,7 +132,7 @@ async function updateAccount(id, updateData) {
         }
 
         try {
-            const response = await fetchData('admin_actions.php?action=delete', 'POST', { find: { username: account.username, email: account.email } });
+            const response = await fetchData('admin_actions.php?action=delete', 'POST', { id: account.id });
             alert(response.message);
             if (response.success) {
                 await loadAccounts(); // Reload the account list

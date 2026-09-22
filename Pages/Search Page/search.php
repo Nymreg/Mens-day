@@ -29,15 +29,15 @@
     <div class="container d-flex justify-content-between align-items-center">
       <!-- Left: Menu -->
       <div class="d-flex align-items-center gap-4">
-        <a class="nav-link active" href="../Landing Page/Landing Page Men's Day.php ">Home</a>
-        <a class="nav-link" href="#">About</a>
+        <a class="nav-link active" href="../Landing Page/Landing Page Men's Day.php">Home</a>
+        <a class="nav-link" href="/Pages/About%20Us%20Page/About%20us.php">About</a>
         <a class="nav-link" href="#">Stories</a>
       </div>
 
       <!-- Right: Icons -->
       <div class="d-flex align-items-center gap-4">
-        <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" /></a>
-        <a href="../Login Page/login.php"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24"
+        <a href="/Pages/Search%20Page/search.php"><img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" /></a>
+        <a href="/Pages/Login%20Page/account.php"><img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24"
             alt="Profile" /></a>
         <a href="#"><img src="https://cdn-icons-png.flaticon.com/512/263/263142.png" width="24" alt="Cart" /></a>
       </div>
@@ -48,19 +48,19 @@
   <div class="category-bar">
     <ul class="nav justify-content-center">
       <li class="nav-item">
-        <a class="nav-link" href="../subTops/Tops Sub-Categories.html">Tops</a>
+        <a class="nav-link" href="/Pages/subTops/Tops%20Sub-Categories.php">Tops</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../subBottoms/Bottoms Sub-Categories.html">Bottoms</a>
+        <a class="nav-link" href="/Pages/subBottoms/Bottoms%20Sub-Categories.php">Bottoms</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../subOutwear/Outerwear Sub-Categories.html">Outerwear</a>
+        <a class="nav-link" href="/Pages/subOutwear/Outerwear%20Sub-Categories.php">Outerwear</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../subFootwear/Footwear Sub-Categories.html">Footwear</a>
+        <a class="nav-link" href="/Pages/subFootwear/Footwear%20Sub-Categories.php">Footwear</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="../subAccessories/Accessories Sub-Categories.html">Accessories</a>
+        <a class="nav-link" href="/Pages/subAccessories/Accessories%20Sub-Categories.php">Accessories</a>
       </li>
       <li class="nav-item">
         <a class="nav-link text-danger" href="#">Discounts</a>
@@ -79,31 +79,31 @@
     <h5>“Popular Tops”</h5>
     <div class="row text-center mt-4">
       <div class="col">
-        <a href="#">
+        <a href="/Pages/subTops/Tshirts%20Products/Tshirt%20page.php">
           <img src="../images/T-shirt.png" class="img-fluid" alt="T-shirt" />
           <div>T-shirts</div>
         </a>
       </div>
       <div class="col">
-        <a href="#">
+        <a href="/Pages/subTops/Shirts%20Products/Shirts%20page.php">
           <img src="../images/Shirts.png" class="img-fluid" alt="Shirt" />
           <div>Shirts</div>
         </a>
       </div>
       <div class="col">
-        <a href="#">
+        <a href="/Pages/subTops/Hoodies%20Products/Hoodies%20page.php">
           <img src="../images/hoodies.png" class="img-fluid" alt="Hoodie" />
           <div>Hoodies</div>
         </a>
       </div>
       <div class="col">
-        <a href="#">
+        <a href="/Pages/subTops/Polo%20Shirts%20Products/Polo%20Shirts%20page.php">
           <img src="../images/Polo Shirt.png" class="img-fluid" alt="Polo Shirt" />
           <div>Polo Shirts</div>
         </a>
       </div>
       <div class="col">
-        <a href="#">
+        <a href="/Pages/subTops/Sweaters%20Products/Sweaters%20page.php">
           <img src="../images/Sweaters.png" class="img-fluid" alt="Sweater" />
           <div>Sweaters</div>
         </a>

@@ -1,3 +1,8 @@
+<?php
+require_once dirname(__DIR__, 2) . '/config/session.php';
+header('Cache-Control: no-store');
+if (appIsLoggedIn()) { header('Location: account.php'); exit; }
+?>
 <!DOCTYPE html>
 <html lang="en"> 
   <head>
@@ -46,6 +51,7 @@
           <p class="text-white-50 mb-4">Welcome Back!</p>
 
 <form action="login_conn_db.php" method="POST">
+<input type="hidden" name="csrf_token" value="<?= htmlspecialchars(appCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
   <div class="input-group mb-3">
     <span class="input-group-text bg-transparent border-0">
       <i class="bi bi-person text-white-50"></i>

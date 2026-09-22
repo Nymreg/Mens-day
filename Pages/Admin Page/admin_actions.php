@@ -1,225 +1,68 @@
 <?php
-// admin_actions.php
-
-require_once dirname(__DIR__, 2) . '/config/database.php';
-$conn = databaseMysqli('mens_daydb');
-
-// Set response content type to JSON
-header('Content-Type: application/json');
-
-// --- Function Definitions ---
-
-function listAccounts($conn) {
-    $sql = "SELECT id, username, email FROM users";
-    $result = $conn->query($sql);
-    $accounts = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $accounts[] = $row;
-        }
-        echo json_encode($accounts);
-    } else {
-        echo json_encode([]);
-    }
+require_once dirname(__DIR__, 2) . '/config/session.php';
+header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store');
+function adminResponse(bool $success, string $message, int $status = 200): never {
+    http_response_code($status);
+    exit(json_encode(['success' => $success, 'message' => $message]));
 }
-
-function addAccount($conn) {
-    error_log("Entering addAccount function");
-    error_log("Content-Type: " . ($_SERVER['HTTP_CONTENT_TYPE'] ?? 'Not set')); // Log Content-Type
-
-    $request_body = file_get_contents('php://input');
-    $data = json_decode($request_body, true); // Decode JSON into an associative array
-
-
-    $username = $data['username'] ?? ''; // Access 'username' from the decoded array
-    $email = $data['email'] ?? ''; // Access 'email'
-    $password = $data['password'] ?? ''; // Access 'password'
-
-    if (empty($username) || empty($email) || empty($password)) {
-        echo json_encode(["success" => false, "message" => "Username, email, and password are required"]);
-        return;
-    }
-
-    // Basic email validation
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(["success" => false, "message" => "Invalid email format"]);
-        return;
-    }
-
-    // Check if username or email already exists
-    $stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-    $stmt->bind_param("ss", $username, $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($result->num_rows > 0) {
-        echo json_encode(["success" => false, "message" => "Username or email already exists"]);
-        $stmt->close();
-        return;
-    }
-    $stmt->close();
-
-    require_once dirname(__DIR__) . '/Login Page/passwords.php';
-    if (!is_string($password) || !passwordCanBeHashed($password)) {
-        echo json_encode(['success' => false, 'message' => 'Invalid password length or format.']);
-        return;
-    }
-    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-    $stmt->bind_param("sss", $username, $email, $passwordHash);
-
-    if ($stmt->execute()) {
-        echo json_encode(["success" => true, "message" => "Account created successfully"]);
-    } else {
-        echo json_encode(["success" => false, "message" => "Error creating account: " . $stmt->error]);
-    }
-
-    $stmt->close();
-}
-
-function deleteAccount($conn) {
-    error_log("Entering deleteAccount function");
-    error_log("Content-Type: " . ($_SERVER['HTTP_CONTENT_TYPE'] ?? 'Not set')); // Log Content-Type
-
-    $request_body = file_get_contents('php://input');
-    $data = json_decode($request_body, true); // Decode JSON
-
-
-    $find = $data['find'] ?? []; // Access 'find' from the decoded data
-    error_log("\$find: " . json_encode($find));
-
-    if (empty($find) || (empty($find['username']) && empty($find['email']))) {
-        echo json_encode(["success" => false, "message" => "Please provide a username or email to find the account to delete"]);
-        return;
-    }
-
-    $conditions = [];
-    $params = [];
-    $types = "";
-
-    if (!empty($find['username'])) {
-        $conditions[] = "username = ?";
-        $params[] = $find['username'];
-        $types .= "s";
-    }
-
-    if (!empty($find['email'])) {
-        $conditions[] = "email = ?";
-        $params[] = $find['email'];
-        $types .= "s";
-    }
-
-    $whereClause = "WHERE " . implode(" OR ", $conditions);
-
-    $sql = "DELETE FROM users " . $whereClause;
-    error_log("\$sql: " . $sql);
-
-    $stmt = $conn->prepare($sql);
-
-    if (!$stmt) {
-        error_log("Error preparing delete statement: " . $conn->error);
-        echo json_encode(["success" => false, "message" => "Error preparing delete statement: " . $conn->error]);
-        return;
-    }
-
-    $stmt->bind_param($types, ...$params);
-
-    if ($stmt->execute()) {
-        error_log("Affected rows: " . $stmt->affected_rows);
-        if ($stmt->affected_rows > 0) {
-            echo json_encode(["success" => true, "message" => "Account deleted successfully"]);
-        } else {
-            echo json_encode(["success" => false, "message" => "No account found matching the criteria"]);
-        }
-    } else {
-        error_log("Error executing delete statement: " . $stmt->error);
-        echo json_encode(["success" => false, "message" => "Error deleting account: " . $stmt->error]);
-    }
-
-    $stmt->close();
-}
-
-function updateAccountInline($conn) {
-    error_log("Entering updateAccountInline function");
-    error_log("Content-Type: " . ($_SERVER['HTTP_CONTENT_TYPE'] ?? 'Not set'));
-
-    $request_body = file_get_contents('php://input');
-    $data = json_decode($request_body, true); // Decode JSON into an associative array
-
-
-    $id = $data['id'] ?? ''; // Access 'id' from the decoded array
-    $username = $data['username'] ?? ''; // Access 'username'
-    $email = $data['email'] ?? ''; // Access 'email'
-
-    error_log("ID received: " . $id . ", Type: " . gettype($id));
-
-    if (empty($id)) {
-        echo json_encode(["success" => false, "message" => "Account ID is required for updating"]);
-        return;
-    }
-
-    $setClauses = [];
-    $params = [];
-    $types = "";
-
-    if (!empty($username)) {
-        $setClauses[] = "username = ?";
-        $params[] = $username;
-        $types .= "s";
-    }
-    if (!empty($email)) {
-        $setClauses[] = "email = ?";
-        $params[] = $email;
-        $types .= "s";
-    }
-
-    $sql = "UPDATE users SET " . implode(", ", $setClauses) . " WHERE id = ?";
-    $params[] = $id;
-    $types .= "i";
-
-    $stmt = $conn->prepare($sql);
-
-    if (!$stmt) {
-        echo json_encode(["success" => false, "message" => "Error preparing update statement: " . $conn->error]);
-        return;
-    }
-
-    $stmt->bind_param($types, ...$params);
-
-    if ($stmt->execute()) {
-        if ($stmt->affected_rows > 0) {
-            echo json_encode(["success" => true, "message" => "Account updated successfully"]);
-        } else {
-            echo json_encode(["success" => false, "message" => "No account found with that ID"]);
-        }
-    } else {
-        echo json_encode(["success" => false, "message" => "Error updating account: " . $stmt->error]);
-    }
-
-    $stmt->close();
-}
-
-// --- Action Handling ---
-
+if (!appIsAdmin()) adminResponse(false, 'Access denied.', 403);
 $action = $_GET['action'] ?? '';
-
-switch ($action) {
-    case 'list':
-        listAccounts($conn);
-        break;
-    case 'add':
-        addAccount($conn);
-        break;
-    case 'delete':
-        deleteAccount($conn);
-        break;
-    case 'update_inline':
-        updateAccountInline($conn);
-        break;
-    default:
-        echo json_encode(["success" => false, "message" => "Invalid action"]);
+if (!in_array($action, ['list', 'add', 'delete', 'update_inline'], true)) adminResponse(false, 'Invalid action.', 400);
+$method = $action === 'list' ? 'GET' : 'POST';
+if ($_SERVER['REQUEST_METHOD'] !== $method) {
+    header('Allow: ' . $method);
+    adminResponse(false, 'Method not allowed.', 405);
 }
-
-// --- Close Connection ---
-$conn->close();
-
-?>
+if ($method === 'POST' && !appValidCsrf($_SERVER['HTTP_X_CSRF_TOKEN'] ?? null)) adminResponse(false, 'Please reload the page and try again.', 403);
+try {
+    require_once dirname(__DIR__, 2) . '/config/database.php';
+    $conn = databaseMysqli('mens_daydb');
+    if ($action === 'list') {
+        exit(json_encode($conn->query('SELECT id, username, email FROM users')->fetch_all(MYSQLI_ASSOC)));
+    }
+    $data = json_decode(file_get_contents('php://input'), true);
+    if (!is_array($data)) adminResponse(false, 'Invalid request.', 400);
+    if ($action === 'delete') {
+        $id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+        if (!$id) adminResponse(false, 'Valid account ID required.', 400);
+        if ($id === (int) $_SESSION['user_id']) adminResponse(false, 'You cannot delete your current account.', 400);
+        $stmt = $conn->prepare('DELETE FROM users WHERE id = ?');
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        adminResponse($stmt->affected_rows === 1, $stmt->affected_rows === 1 ? 'Account deleted successfully' : 'Account not found.');
+    }
+    $username = is_string($data['username'] ?? null) ? trim($data['username']) : '';
+    $email = is_string($data['email'] ?? null) ? trim($data['email']) : '';
+    if ($action === 'add') {
+        if ($username === '' || strlen($username) > 20 || !filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 30) adminResponse(false, 'Enter a username up to 20 bytes and a valid email up to 30 bytes.', 400);
+        require_once dirname(__DIR__) . '/Login Page/passwords.php';
+        $password = $data['password'] ?? null;
+        if (!is_string($password) || $password === '' || !passwordCanBeHashed($password)) adminResponse(false, 'Invalid password length or format.', 400);
+        $check = $conn->prepare('SELECT id FROM users WHERE username = ? OR email = ?');
+        $check->bind_param('ss', $username, $email);
+        $check->execute();
+        if ($check->get_result()->num_rows) adminResponse(false, 'Account details already in use.', 409);
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $conn->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
+        $stmt->bind_param('sss', $username, $email, $hash);
+        $stmt->execute();
+        adminResponse(true, 'Account created successfully');
+    }
+    $id = filter_var($data['id'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+    if (!$id || ($username === '' && $email === '') || strlen($username) > 20
+        || ($email !== '' && (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 30))) adminResponse(false, 'Enter valid account changes.', 400);
+    if ($username !== '') {
+        $check = $conn->prepare('SELECT id FROM users WHERE username = ? AND id <> ?');
+        $check->bind_param('si', $username, $id);
+        $check->execute();
+        if ($check->get_result()->num_rows) adminResponse(false, 'Account details already in use.', 409);
+    }
+    $stmt = $conn->prepare("UPDATE users SET username = COALESCE(NULLIF(?, ''), username), email = COALESCE(NULLIF(?, ''), email) WHERE id = ?");
+    $stmt->bind_param('ssi', $username, $email, $id);
+    $stmt->execute();
+    if ($id === (int) $_SESSION['user_id'] && $username !== '') $_SESSION['username'] = $username;
+    adminResponse(true, $stmt->affected_rows ? 'Account updated successfully' : 'No changes made.');
+} catch (Throwable $error) {
+    adminResponse(false, 'Unable to complete the account request.', 500);
+}

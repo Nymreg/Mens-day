@@ -17,3 +17,20 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+
+// Filter the category cards already displayed on search/category pages.
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.querySelector('.search-bar input');
+  if (!input) return;
+  input.id = input.id || 'category-search';
+  input.name = 'q';
+  const cards = document.querySelectorAll('.popular-tops .col');
+  function filterCards() {
+    const query = input.value.trim().toLocaleLowerCase();
+    cards.forEach(card => { card.hidden = !card.textContent.toLocaleLowerCase().includes(query); });
+  }
+  input.addEventListener('input', filterCards);
+  document.querySelector('.cancel-text')?.addEventListener('click', function () {
+    input.value = ''; filterCards(); input.focus();
+  });
+});

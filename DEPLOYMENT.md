@@ -21,6 +21,7 @@ image starts Apache in the foreground. Set these environment variables:
 | DB_PASSWORD | That user's password; enter only in Render |
 | DB_SSL_CA | `/etc/secrets/ca.pem` |
 | PORT | `80` (matches Apache's listening port) |
+| ADMIN_USER_IDS | Comma-separated trusted `mens_daydb.users.id` values, e.g. `11,25`; unset/empty grants nobody admin access. |
 
 Download the service CA certificate from Aiven and add its complete PEM contents
 as a Render secret file named `ca.pem`. Do not commit credentials or certificates.
@@ -110,8 +111,8 @@ Docker is unavailable locally, so the new image checks must execute on Render.
    session. Truncated hashes, legacy values beginning with `$`, and passwords
    longer than bcrypt's 72-byte limit require a password reset. No schema change
    is needed if the deployed users.password is already VARCHAR(255).
-   Existing admin authorization remains a separate issue: admin_actions.php has
-   no server-side authorization check and admin status is based on username.
+   Admin pages/actions now enforce ADMIN_USER_IDS on the server; usernames never
+   grant admin access. Configure trusted IDs and sign in again after deployment.
 5. PHP sessions are currently filesystem-based. Redeploys can log users out;
    multiple instances need shared session storage.
 
@@ -229,3 +230,17 @@ Files changed in this authentication update:
 - `Pages/subTops/Tshirts Products/Tshirt page.php`
 - `Pages/Login Page/passwords.php`
 - `tests/passwords.php`
+
+## Functional audit deployment notes
+
+See AUDIT.md for the full review, file manifest, known limitations, and manual tests.
+No schema, TLS, CA entrypoint, or credential configuration changes are required.
+Configure ADMIN_USER_IDS with existing trusted numeric account IDs (no leading
+zeros); obtain IDs using `SELECT id, username FROM mens_daydb.users;` in your
+private Aiven client. Never designate an unverified/publicly registered account.
+Leave this setting blank to disable admin access. Changing a username does not
+change privileges. Remove an ID from this setting when revoking its admin access.
+Sessions from before the audit do not contain user_id: sign out and sign in again.
+After deploying, reload login/signup/admin pages to receive fresh CSRF tokens and
+updated JavaScript. Existing file sessions may be lost on restart/redeploy, and
+multiple replicas require shared session storage.

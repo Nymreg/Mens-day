@@ -1,7 +1,14 @@
+<?php
+require_once dirname(__DIR__, 2) . '/config/session.php';
+if (!appIsLoggedIn()) { header('Location: /Pages/Login%20Page/login.php'); exit; }
+if (!appIsAdmin()) { http_response_code(403); exit('Access denied.'); }
+header('Cache-Control: no-store');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+<meta name="csrf-token" content="<?= htmlspecialchars(appCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin Control Panel - Accounts</title>
@@ -24,10 +31,10 @@
       </div>
 
       <div class="d-flex align-items-center gap-4">
-        <a href="#">
+        <a href="/Pages/Search%20Page/search.php">
           <img src="https://cdn-icons-png.flaticon.com/512/54/54481.png" width="24" alt="Search" />
         </a>
-        <a href="../Login Page/login.php">
+        <a href="/Pages/Login%20Page/account.php">
           <img src="https://cdn-icons-png.flaticon.com/512/1077/1077063.png" width="24" alt="Profile" />
         </a>
         <a href="#" id="cartIcon">
