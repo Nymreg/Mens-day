@@ -62,7 +62,10 @@ try {
         require_once dirname(__DIR__, 2) . '/config/session.php';
         $_SESSION['is_admin'] = appIsAdmin();
         unset($_SESSION['csrf_token']);
-        exit(json_encode(['status' => 'success', 'message' => 'Welcome back!']));
+        $redirect = $_SESSION['is_admin']
+            ? '/Pages/Admin%20Page/account_management.php'
+            : '/Pages/Landing%20Page/Landing%20Page%20Men%27s%20Day.php';
+        exit(json_encode(['status' => 'success', 'message' => 'Welcome back!', 'redirect' => $redirect]));
     }
     loginError('Invalid username or password. Please try again.', 401);
 } catch (Throwable $error) {

@@ -42,7 +42,13 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((data) => {
         if (data.status === "success") {
           alert(`✅ ${data.message}`);
-          window.location.href = "../Landing Page/Landing Page Men's Day.php";
+          const destinations = [
+            '/Pages/Admin%20Page/account_management.php',
+            '/Pages/Landing%20Page/Landing%20Page%20Men%27s%20Day.php',
+          ];
+          window.location.href = destinations.includes(data.redirect)
+            ? data.redirect
+            : destinations[1];
         } else {
           alert(`❗ ${data.message}`);
         }
