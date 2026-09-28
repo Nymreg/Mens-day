@@ -28,15 +28,12 @@ RUN set -eu; \
     test -f "$auth_dir/login.js"; \
     test -f "$auth_dir/login_conn_db.php"; \
     test -f "$auth_dir/login_conn_db_unsecured.php"; \
-    grep -n 'login_conn_db' "$auth_dir/login.js"; \
-    grep -Fq 'fetch("login_conn_db.php",' "$auth_dir/login.js"; \
+    grep -Fq 'fetch(form.action,' "$auth_dir/login.js"; \
     grep -Fq "databaseMysqli('mens_daydb')" "$auth_dir/login_conn_db.php"; \
-    grep -Fq "require __DIR__ . '/login_conn_db.php';" "$auth_dir/login_conn_db_unsecured.php"; \
-    if grep -Eq 'mysqli_connect|localhost|127\.0\.0\.1|new[[:space:]]+mysqli|SELECT|INSERT|UPDATE|DELETE' "$auth_dir/login_conn_db_unsecured.php"; then \
-        echo 'ERROR: obsolete standalone login implementation is present.' >&2; exit 1; \
-    fi; \
-    if grep -Fq 'login_conn_db_unsecured.php' "$auth_dir/login.js"; then \
-        echo 'ERROR: login.js calls the obsolete endpoint.' >&2; exit 1; \
+    grep -Fq "getenv('ENABLE_SQLI_LAB') !== 'true'" "$auth_dir/login_conn_db_unsecured.php"; \
+    grep -Fq "databaseMysqli('mens_daydb')" "$auth_dir/login_conn_db_unsecured.php"; \
+    if grep -Eq 'mysqli_connect|localhost|127\.0\.0\.1|new[[:space:]]+mysqli' "$auth_dir/login_conn_db_unsecured.php"; then \
+        echo 'ERROR: lab login must use the centralized TLS connection.' >&2; exit 1; \
     fi; \
     php -l "$auth_dir/login_conn_db.php"; \
     php -l "$auth_dir/login_conn_db_unsecured.php"; \

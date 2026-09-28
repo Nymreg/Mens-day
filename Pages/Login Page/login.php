@@ -2,6 +2,8 @@
 require_once dirname(__DIR__, 2) . '/config/session.php';
 header('Cache-Control: no-store');
 if (appIsLoggedIn()) { header('Location: account.php'); exit; }
+$labEnabled = getenv('ENABLE_SQLI_LAB') === 'true';
+$labSelected = $labEnabled && ($_GET['mode'] ?? '') === 'lab';
 ?>
 <!DOCTYPE html>
 <html lang="en"> 
@@ -50,7 +52,12 @@ if (appIsLoggedIn()) { header('Location: account.php'); exit; }
           <h2 class="fw-bold text-white mb-2">EXISTING MEMBER</h2>
           <p class="text-white-50 mb-4">Welcome Back!</p>
 
-<form action="login_conn_db.php" method="POST">
+<?php if ($labEnabled): ?>
+<p class="text-white small"><?= $labSelected ? 'LAB MODE — intentionally vulnerable' : 'Secure SQL mode' ?>
+  · <a class="text-white" href="login.php<?= $labSelected ? '' : '?mode=lab' ?>">Switch to <?= $labSelected ? 'secure' : 'lab' ?> login</a>
+</p>
+<?php endif; ?>
+<form action="<?= $labSelected ? 'login_conn_db_unsecured.php' : 'login_conn_db.php' ?>" method="POST">
 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(appCsrfToken(), ENT_QUOTES, 'UTF-8') ?>">
   <div class="input-group mb-3">
     <span class="input-group-text bg-transparent border-0">

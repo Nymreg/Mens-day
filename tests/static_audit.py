@@ -98,8 +98,10 @@ for path in (ROOT / 'Pages').rglob('*'):
         for suffix in re.findall(r"require(?:_once)?\s+__DIR__ \. '([^']+)'", source):
             if (path.parent / suffix.lstrip('/')).relative_to(ROOT).as_posix() not in known:
                 errors.append(f'{owner}: missing local include')
-    if re.search(r'mysqli_connect\s*\(|new\s+mysqli\s*\(|localhost|127\.0\.0\.1|login_conn_db_unsecured\.php', source):
+    if re.search(r'mysqli_connect\s*\(|new\s+mysqli\s*\(|localhost|127\.0\.0\.1', source):
         errors.append(f'{owner}: obsolete connection/reference')
+    if 'login_conn_db_unsecured.php' in source and owner.as_posix() != 'Pages/Login Page/login.php':
+        errors.append(f'{owner}: unexpected lab endpoint reference')
 
 endpoints = list((ROOT / 'Pages').rglob('save_transaction.php'))
 assert len(endpoints) == 25
