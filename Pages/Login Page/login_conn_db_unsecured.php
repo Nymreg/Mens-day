@@ -28,9 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
  */
 try {
     require_once dirname(__DIR__, 2) . '/config/session.php';
-    if (!appValidCsrf($_POST['csrf_token'] ?? null)) {
-        labLoginError('Please reload the login page and try again.', 403);
-    }
+    // if (!appValidCsrf($_POST['csrf_token'] ?? null)) {
+    //     labLoginError('Please reload the login page and try again.', 403);
+    // }
     unset($_SESSION['username'], $_SESSION['user_id'], $_SESSION['is_admin']);
     $username = is_string($_POST['username'] ?? null) ? trim($_POST['username']) : '';
     $password = $_POST['password'] ?? null;
