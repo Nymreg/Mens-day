@@ -18,8 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const formData = new FormData(form);
 
     // Send login request to the server
-    // PHP selects the form action; the default page always uses secure login.
-    fetch(form.action, {
+    fetch("login_conn_db.php", {
       method: "POST",
       body: formData,
     })
