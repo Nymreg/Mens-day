@@ -66,7 +66,7 @@ try {
     // this alterable WHERE clause instead of being enforced by a PHP rejection.
     // Returning any row is the final login decision, so changing the SQL logic
     // can bypass even a failed password check. The secure handler never does this.
-    $sql = "SELECT id, username FROM users WHERE username = '$username'";
+    $sql = "SELECT id, username FROM users WHERE username = '$username' AND $passwordMatched = 1";
     $row = $conn->query($sql)->fetch_assoc();
     if (!$row) {
         labLoginError('Invalid username or password. Please try again.', 401);
