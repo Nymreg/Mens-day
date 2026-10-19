@@ -22,6 +22,8 @@ image starts Apache in the foreground. Set these environment variables:
 | DB_SSL_CA | `/etc/secrets/ca.pem` |
 | PORT | `80` (matches Apache's listening port) |
 | ADMIN_USER_IDS | Comma-separated trusted `mens_daydb.users.id` values, e.g. `11,25`; unset/empty grants nobody admin access. |
+| LOGIN_RATE_LIMIT_KEY | At least 32 random bytes encoded as a secret value; keep stable across restarts and instances. |
+| TRUST_PROXY_HEADERS | Set to `true` only when a trusted reverse proxy overwrites `X-Forwarded-For`; otherwise leave unset. |
 
 Download the service CA certificate from Aiven and add its complete PEM contents
 as a Render secret file named `ca.pem`. Do not commit credentials or certificates.
@@ -29,6 +31,15 @@ Render mounts Docker runtime secret files at `/etc/secrets/<filename>`.
 No DB_NAME variable is needed: application calls retain `mens_daydb` and `product`.
 If Aiven IP filtering is enabled, allow your Render service's outbound IP ranges
 and the workstation used for imports.
+
+Before deploying the login rate limiter, apply `Database Schema/login_rate_limits.sql`
+to the existing `mens_daydb` database using the MySQL client and verified TLS
+connection. The migration is additive and creates the persistent account/IP
+failure buckets. Do not enable `TRUST_PROXY_HEADERS` unless the hosting proxy
+strips untrusted forwarded headers and supplies the client address itself. Keep
+`ENABLE_SQLI_LAB` unset on the normal website; the isolated demonstration handler
+does not use the secure login limiter. Configure `LOGIN_RATE_LIMIT_KEY` in the
+hosting secret store; changing it invalidates existing rate-limit buckets.
 
 ## Import commands (PowerShell)
 
@@ -113,7 +124,16 @@ Docker is unavailable locally, so the new image checks must execute on Render.
    is needed if the deployed users.password is already VARCHAR(255).
    Admin pages/actions now enforce ADMIN_USER_IDS on the server; usernames never
    grant admin access. Configure trusted IDs and sign in again after deployment.
-5. PHP sessions are currently filesystem-based. Redeploys can log users out;
+5. For login-throttle verification, use a disposable account and submit four
+   incorrect passwords: the response should report 4, 3, 2, then 1 attempts
+   remaining. A fifth failure should show the five-minute lock message/countdown;
+   even the correct password must be rejected until expiry. After expiry, verify
+   correct credentials work and clear the account's previous failures. Test the
+   IP limiter with disposable usernames from one client address: its twentieth
+   failed request should start a 15-minute network cooldown. Unknown usernames
+   must receive the same invalid-credential message as wrong passwords. Missing
+   or invalid CSRF must still be rejected. Never test with production accounts.
+6. PHP sessions are currently filesystem-based. Redeploys can log users out;
    multiple instances need shared session storage.
 
 ## Verification performed

@@ -1,5 +1,26 @@
 document.addEventListener("DOMContentLoaded", function () {
   const form = document.querySelector("form");
+  const feedback = document.querySelector("#login-feedback");
+  let countdownTimer;
+
+  function showFeedback(message) {
+    clearInterval(countdownTimer);
+    feedback.textContent = message;
+  }
+
+  function showCountdown(message, seconds) {
+    clearInterval(countdownTimer);
+    const deadline = performance.now() + Math.max(0, seconds) * 1000;
+    const render = () => {
+      const remaining = Math.max(0, Math.ceil((deadline - performance.now()) / 1000));
+      const minutes = Math.floor(remaining / 60);
+      const secondsPart = String(remaining % 60).padStart(2, "0");
+      feedback.textContent = `${message} (${minutes}:${secondsPart} remaining)`;
+      if (remaining === 0) clearInterval(countdownTimer);
+    };
+    render();
+    countdownTimer = setInterval(render, 1000);
+  }
 
   form.addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent default form submission
@@ -10,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Validate inputs
     if (!username || !password) {
-      alert("❗ Please fill in both username and password.");
+      showFeedback("Please fill in both username and password.");
       return;
     }
 
@@ -36,7 +57,7 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error("Unable to sign in right now. Please try again later.");
         }
         if (!response.ok) {
-          return { status: "error", message: data.message };
+          return { ...data, status: "error" };
         }
         return data;
       })
@@ -51,12 +72,24 @@ document.addEventListener("DOMContentLoaded", function () {
             ? data.redirect
             : destinations[1];
         } else {
-          alert(`❗ ${data.message}`);
+          const remainingAttempts = Number.isInteger(data.remaining_attempts)
+            ? data.remaining_attempts
+            : null;
+          const message = remainingAttempts === null || remainingAttempts === 0
+            ? data.message
+            : remainingAttempts <= 2
+              ? `Warning: ${remainingAttempts} login attempts remaining. ${data.message}`
+              : `${data.message} ${remainingAttempts} attempts remaining.`;
+          if (Number.isInteger(data.remaining_seconds)) {
+            showCountdown(message, data.remaining_seconds);
+          } else {
+            showFeedback(message);
+          }
         }
       })
       .catch((error) => {
         // Never log server response bodies or submitted credentials.
-        alert("❗ An error occurred. Please try again later.");
+        showFeedback("An error occurred. Please try again later.");
       });
 
     // Smooth animation for login form

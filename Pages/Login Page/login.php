@@ -87,6 +87,7 @@ $labSelected = $labEnabled && ($_GET['mode'] ?? '') === 'lab';
     Continue <i class="bi bi-arrow-right"></i>
   </button>
 </form>
+<p id="login-feedback" class="text-white-50 small mt-2" role="status" aria-live="polite"></p>
             
 
             <div class="text-white-50 mb-3">OR</div>
