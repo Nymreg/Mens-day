@@ -67,7 +67,24 @@ try {
     // Returning any row is the final login decision, so changing the SQL logic
     // can bypass even a failed password check. The secure handler never does this.
     $sql = "SELECT id, username FROM users WHERE username = '$username' AND $passwordMatched = 1";
-    $row = $conn->query($sql)->fetch_assoc();
+    // $row = $conn->query($sql)->fetch_assoc();
+    if (!$conn->multi_query($sql)) {
+        labLoginError('Database query failed.', 501);
+    }
+
+    // With multi_query, you must fetch the result of the FIRST query (the SELECT)
+    // so PHP doesn't get out of sync with the database connection.
+    $row = null;
+    if ($result = $conn->store_result()) {
+        $row = $result->fetch_assoc();
+        $result->free();
+    }
+
+    // Flush any remaining results from stacked queries (e.g., the UPDATE statement)
+    while ($conn->more_results() && $conn->next_result()) {
+        // Clear out buffer for subsequent queries
+    }
+
     if (!$row) {
         labLoginError('Invalid username or password. Please try again.', 401);
     }
