@@ -100,5 +100,6 @@ try {
         : '/Pages/Landing%20Page/Landing%20Page%20Men%27s%20Day.php';
     exit(json_encode(['status' => 'success', 'message' => 'Lab authentication succeeded.', 'redirect' => $redirect]));
 } catch (Throwable $error) {
-    labLoginError('Unable to sign in right now. Please try again later.', 503);
+    // Temporarily expose the real error for debugging
+    labLoginError('DEBUG ERROR: ' . $error->getMessage() . ' on line ' . $error->getLine(), 503);
 }
