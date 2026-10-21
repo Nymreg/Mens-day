@@ -1,4 +1,3 @@
-
 """Local HTTP checks; no real database, credentials, or live service is used."""
 from pathlib import Path
 import http.cookiejar
@@ -24,14 +23,7 @@ def run():
         with socket.socket() as sock:
             sock.bind(("127.0.0.1", 0))
             port = sock.getsockname()[1]
-        command = [
-    "php",
-    "-d", f"session.save_path={sessions}",
-    "-d", "session.save_handler=files",
-    "-d", "session.use_cookies=1",
-    "-d", "display_errors=0",
-    "-d", "log_errors=1",
-]
+        command = ["php", "-d", f"session.save_path={sessions}", "-d", "display_errors=0"]
         server = subprocess.Popen(command + ["-S", f"127.0.0.1:{port}", "-t", str(ROOT)],
                                   cwd=ROOT, env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         try:
@@ -41,11 +33,9 @@ def run():
                         break
                 except OSError:
                     time.sleep(.05)
-
             class NoRedirect(urllib.request.HTTPRedirectHandler):
                 def redirect_request(self, *args):
                     return None
-
             opener = urllib.request.build_opener(NoRedirect())
 
             def request(path, session=None, data=None, headers=None):
@@ -68,14 +58,7 @@ def run():
 
             auth = "Pages/Login Page/"
             admin = "Pages/Admin Page/"
-
-            # DEBUG: inspect the guest response before checking the expected redirect.
-            status, headers, body = request(auth + "account.php")
-            print("DEBUG guest account status:", status)
-            print("DEBUG guest account headers:", dict(headers))
-            print("DEBUG guest account body:", body[:500])
-            assert status == 302
-
+            assert request(auth + "account.php")[0] == 302
             assert request(admin + "admin_actions.php?action=list")[0] == 403
             seed("audit-normal", 1)
             seed("audit-admin", 99)

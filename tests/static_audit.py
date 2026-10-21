@@ -100,7 +100,7 @@ for path in (ROOT / 'Pages').rglob('*'):
                 errors.append(f'{owner}: missing local include')
     if re.search(r'mysqli_connect\s*\(|new\s+mysqli\s*\(|localhost|127\.0\.0\.1', source):
         errors.append(f'{owner}: obsolete connection/reference')
-    if 'login_conn_db.php' in source and owner.as_posix() != 'Pages/Login Page/login.php':
+    if 'login_conn_db_unsecured.php' in source and owner.as_posix() != 'Pages/Login Page/login.php':
         errors.append(f'{owner}: unexpected lab endpoint reference')
 
 endpoints = list((ROOT / 'Pages').rglob('save_transaction.php'))

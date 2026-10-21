@@ -63,13 +63,3 @@ endpoint returns 403; secure login remains available; enabled lab form carries
 CSRF; a known disposable account can log in; a small number of manual incorrect
 attempts each return failure without lockout; session roles still follow the
 configured allowlist. Do not use real credentials for demonstrations.
-
-# SQL Injection Defense
-
-The unsecured login endpoint has been removed.
-
-The login form submits to `Pages/Login Page/login_conn_db.php`.
-The secure backend uses prepared statements to protect against SQL injection.
-
-The lab-mode switch and instructions for enabling the vulnerable endpoint
-have been retired.
