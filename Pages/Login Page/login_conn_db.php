@@ -1,6 +1,6 @@
 <?php
 // Keep warnings/fatal details out of the JSON response.
-ini_set('display_errors', '1');
+ini_set('display_errors', '0');
 ob_start();
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -166,5 +166,6 @@ try {
         'remaining_attempts' => 5 - $accountAttempts,
     ]);
 } catch (Throwable $error) {
-    loginError('DEBUG ERROR: ' . $error->getMessage() . ' on line ' . $error->getLine(), 503);
-}
+    error_log('Login backend error: ' . $error->getMessage());
+    loginError('Unable to sign in right now. Please try again later.', 503);
+} 
