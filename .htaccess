@@ -1,6 +1,8 @@
-# Force HTTPS (behind Render's proxy)
+# Force HTTPS (behind Render's proxy). Treat missing or unexpected proxy
+# protocol headers as insecure so requests fail closed.
 RewriteEngine On
-RewriteCond %{HTTP:X-Forwarded-Proto} =http
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !^https$ [NC]
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
 # HSTS: browsers must use HTTPS only

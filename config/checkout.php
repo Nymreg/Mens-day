@@ -8,6 +8,13 @@ function checkoutError(int $status, string $message): never {
     exit($message);
 }
 
+$forwardedProto = strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '');
+$isHttps = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
+    || $forwardedProto === 'https';
+if (!$isHttps) {
+    checkoutError(426, 'HTTPS is required for checkout.');
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     checkoutError(405, 'Method Not Allowed');
