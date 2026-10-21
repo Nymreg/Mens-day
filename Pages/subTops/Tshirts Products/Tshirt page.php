@@ -530,7 +530,8 @@
         // Prepare data for the transaction
         const transactionData = {
           cart: [{ name: buyNowItem.name, color: buyNowItem.color, qty: buyNowItem.qty }],
-          coupon_applied: ''
+          coupon_applied: '',
+          total_price: buyNowItem.price.toFixed(2)
         };
 
         // Send data to server
@@ -693,7 +694,8 @@
             color: item.color,
             qty: item.qty
           })),
-          coupon_applied: appliedCoupon || ''
+          coupon_applied: appliedCoupon || '',
+          total_price: total.toFixed(2)
         })
       })
         .then(res => {

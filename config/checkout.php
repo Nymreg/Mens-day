@@ -27,9 +27,9 @@ if (!is_array($data) || !is_array($data['cart'] ?? null) || !$data['cart']) {
 
 $cart        = $data['cart'];
 $coupon      = $data['coupon_applied'] ?? '';
-$clientTotal = $data['total_price'] ?? null; // NOT trusted; only used to detect tampering
+$clientTotal = $data['total_price'] ?? null; // Untrusted; used only to detect tampering.
 
-if (!is_string($coupon) || strlen($coupon) > 50) {
+if (!is_string($coupon) || strlen($coupon) > 50 || !is_numeric($clientTotal)) {
     checkoutError(400, 'Invalid checkout details.');
 }
 
@@ -74,6 +74,7 @@ if (is_numeric($clientTotal) && abs((float) $clientTotal - $total) > 0.01) {
         $clientTotal,
         number_format($total, 2, '.', '')
     ));
+    checkoutError(400, 'Checkout total mismatch. Please review your cart and try again.');
 }
 
 // ---- Atomic write using the SERVER-computed total ----
