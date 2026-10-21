@@ -139,7 +139,7 @@
                     <h6>RetroGlow Tee</h6>
                     <p class="text-muted">Mirage</p>
                   </div>
-                  <h6>$138</h6>
+                  <h6>$163</h6>
                 </div>
                 <div class="button-group mt-3">
                   <button class="btn btn-add-to-cart btn-sm w-100 mb-2">
