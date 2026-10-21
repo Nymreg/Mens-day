@@ -1,7 +1,7 @@
 <?php
 
 const PRODUCT_CATALOG = [
-    'RetroGlow Tee|Mirage'                  => 138,
+    'RetroGlow Tee|Mirage'                  => 163,
     'SilkBlend Tee|Sorell Brown'            => 162,
     'RogueInk Tee|Mid Grey'                 => 163,
     'EchoPalm Tee|Woody Brown'              => 154,
