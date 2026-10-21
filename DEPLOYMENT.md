@@ -36,10 +36,7 @@ Before deploying the login rate limiter, apply `Database Schema/login_rate_limit
 to the existing `mens_daydb` database using the MySQL client and verified TLS
 connection. The migration is additive and creates the persistent account/IP
 failure buckets. Do not enable `TRUST_PROXY_HEADERS` unless the hosting proxy
-strips untrusted forwarded headers and supplies the client address itself. Keep
-`ENABLE_SQLI_LAB` unset on the normal website; the isolated demonstration handler
-does not use the secure login limiter. Configure `LOGIN_RATE_LIMIT_KEY` in the
-hosting secret store; changing it invalidates existing rate-limit buckets.
+strips untrusted forwarded headers and supplies the client address itself. Keep ENABLE_SQLI_LAB unset on the normal website. The unsecured demonstration login endpoint has been retired and must not be deployed or enabled. Configure `LOGIN_RATE_LIMIT_KEY` in the hosting secret store; changing it invalidates existing rate-limit buckets.
 
 ## Import commands (PowerShell)
 

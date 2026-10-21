@@ -22,23 +22,16 @@ COPY config/ /var/www/html/config/
 COPY index.php /var/www/html/index.php
 COPY .htaccess /var/www/html/.htaccess
 
-# Reject stale login sources and identify exactly which files Render built.
-# Keep this after all application COPY instructions.
+# Verify the secure login handler and reject the vulnerable endpoint.
 RUN set -eu; \
     auth_dir='/var/www/html/Pages/Login Page'; \
     test -f "$auth_dir/login.js"; \
     test -f "$auth_dir/login_conn_db.php"; \
-    test -f "$auth_dir/login_conn_db_unsecured.php"; \
+    test ! -f "$auth_dir/login_conn_db_unsecured.php"; \
     grep -Fq 'fetch(form.action,' "$auth_dir/login.js"; \
     grep -Fq "databaseMysqli('mens_daydb')" "$auth_dir/login_conn_db.php"; \
-    grep -Fq "getenv('ENABLE_SQLI_LAB') !== 'true'" "$auth_dir/login_conn_db_unsecured.php"; \
-    grep -Fq "databaseMysqli('mens_daydb')" "$auth_dir/login_conn_db_unsecured.php"; \
-    if grep -Eq 'mysqli_connect|localhost|127\.0\.0\.1|new[[:space:]]+mysqli' "$auth_dir/login_conn_db_unsecured.php"; then \
-        echo 'ERROR: lab login must use the centralized TLS connection.' >&2; exit 1; \
-    fi; \
     php -l "$auth_dir/login_conn_db.php"; \
-    php -l "$auth_dir/login_conn_db_unsecured.php"; \
-    sha256sum "$auth_dir/login.js" "$auth_dir/login_conn_db.php" "$auth_dir/login_conn_db_unsecured.php"
+    sha256sum "$auth_dir/login.js" "$auth_dir/login_conn_db.php"
 
 # Make the entry point and application readable regardless of build-context modes.
 RUN find /var/www/html -type d -exec chmod 755 {} + \
