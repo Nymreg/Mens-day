@@ -2,7 +2,7 @@ FROM php:8.3-apache
 
 RUN docker-php-ext-install pdo_mysql mysqli
 
-RUN a2enmod rewrite
+RUN a2enmod rewrite headers
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
@@ -20,6 +20,7 @@ CMD ["apache2-foreground"]
 COPY Pages/ /var/www/html/Pages/
 COPY config/ /var/www/html/config/
 COPY index.php /var/www/html/index.php
+COPY .htaccess /var/www/html/.htaccess
 
 # Reject stale login sources and identify exactly which files Render built.
 # Keep this after all application COPY instructions.

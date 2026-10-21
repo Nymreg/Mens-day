@@ -279,7 +279,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                   <div>
                     <h6>AeroCotton Tee</h6>
-                    <p class="text-muted">Black</p>
+                    <p class="text-muted">Vanilla</p>
                   </div>
                   <h6>$173</h6>
                 </div>
@@ -529,9 +529,8 @@
       if (confirm(`Buy ${name} (${color}) for $${price} now?`)) {
         // Prepare data for the transaction
         const transactionData = {
-          cart: [buyNowItem],
-          coupon_applied: '',
-          total_price: price
+          cart: [{ name: buyNowItem.name, color: buyNowItem.color, qty: buyNowItem.qty }],
+          coupon_applied: ''
         };
 
         // Send data to server
@@ -549,7 +548,7 @@
             return response.text();
           })
           .then(data => {
-            alert('Purchase successful! Your order has been placed.');
+            alert('Purchase successful! Your order has been placed.' + data);
             console.log('Transaction saved:', data);
           })
           .catch(error => {
@@ -694,8 +693,7 @@
             color: item.color,
             qty: item.qty
           })),
-          coupon_applied: appliedCoupon || '',
-          total_price: total.toFixed(2)
+          coupon_applied: appliedCoupon || ''
         })
       })
         .then(res => {

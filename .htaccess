@@ -1,0 +1,7 @@
+# Force HTTPS (behind Render's proxy)
+RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+# HSTS: browsers must use HTTPS only
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
