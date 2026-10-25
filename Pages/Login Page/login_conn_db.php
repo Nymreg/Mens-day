@@ -1,15 +1,34 @@
 <?php
 // Keep warnings/fatal details out of the JSON response.
-ini_set('display_errors', '1');
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 ob_start();
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+function loginDiagnosticId(): string
+{
+    return bin2hex(random_bytes(16));
+}
+function logLoginDiagnostic(string $category, string $correlationId): void
+{
+    error_log(json_encode([
+        'event' => 'login_backend_error',
+        'category' => $category,
+        'correlation_id' => $correlationId,
+    ]));
+}
 register_shutdown_function(static function (): void {
     $error = error_get_last();
     if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
         ob_clean();
+        $correlationId = loginDiagnosticId();
+        logLoginDiagnostic('php_fatal', $correlationId);
         http_response_code(500);
-        echo json_encode(['status' => 'error', 'message' => 'Unable to sign in right now. Please try again later.']);
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Unable to sign in right now. Please try again later.',
+            'correlation_id' => $correlationId,
+        ]);
     }
 });
 function loginError(string $message, int $status = 400, array $details = []): never
@@ -166,5 +185,14 @@ try {
         'remaining_attempts' => 5 - $accountAttempts,
     ]);
 } catch (Throwable $error) {
-    loginError('DEBUG ERROR: ' . $error->getMessage() . ' on line ' . $error->getLine(), 503);
+    $category = $error instanceof mysqli_sql_exception
+        ? 'database_error'
+        : ($error instanceof RuntimeException && $error->getMessage() === 'Missing or weak login rate-limit key.'
+            ? 'rate_limit_config_error'
+            : 'unexpected_backend_error');
+    $correlationId = loginDiagnosticId();
+    logLoginDiagnostic($category, $correlationId);
+    loginError('Unable to sign in right now. Please try again later.', 503, [
+        'correlation_id' => $correlationId,
+    ]);
 }
