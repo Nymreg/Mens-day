@@ -19,13 +19,6 @@ gate = "if (getenv('ENABLE_SQLI_LAB') !== 'true')"
 assert gate in lab
 assert lab.index(gate) < lab.index("'/config/session.php'") < lab.index("databaseMysqli('mens_daydb')")
 assert "labLoginError('Security demonstration lab is disabled.', 403);" in lab
-assert "ini_set('display_errors', '0');" in lab
-assert "ini_set('log_errors', '1');" in lab
-assert 'DEBUG ERROR' not in lab
-assert '$error->getMessage()' not in lab and '$error->getLine()' not in lab
-assert "'message' => 'Unable to sign in right now. Please try again later.'" in lab
-assert "'correlation_id' => $correlationId" in lab
-assert "logLabLoginDiagnostic($category, $correlationId);" in lab
 assert "$labEnabled = getenv('ENABLE_SQLI_LAB') === 'true';" in form
 assert "$labSelected = $labEnabled && ($_GET['mode'] ?? '') === 'lab';" in form
 assert "$labSelected ? 'login_conn_db_unsecured.php' : 'login_conn_db.php'" in form

@@ -53,10 +53,10 @@ function resetLoginRateLimit(mysqli $conn, string $scope, string $subjectHash): 
     $reset->bind_param('ss', $scope, $subjectHash);
     $reset->execute();
 }
-function recordLoginFailure(mysqli $conn, string $scope, string $subjectHash, int $attempts, int $threshold, int $lockSeconds): void
+function recordLoginFailure(mysqli $conn, string $scope, string $subjectHash, int $attempts, int $threshold, int $lockMinutes): void
 {
-    $update = $conn->prepare('UPDATE login_rate_limits SET failed_attempts = ?, locked_until = CASE WHEN ? >= ? THEN DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? SECOND) ELSE NULL END, updated_at = UTC_TIMESTAMP() WHERE scope = ? AND subject_hash = ?');
-    $update->bind_param('iiiiss', $attempts, $attempts, $threshold, $lockSeconds, $scope, $subjectHash);
+    $update = $conn->prepare('UPDATE login_rate_limits SET failed_attempts = ?, locked_until = CASE WHEN ? >= ? THEN DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? MINUTE) ELSE NULL END, updated_at = UTC_TIMESTAMP() WHERE scope = ? AND subject_hash = ?');
+    $update->bind_param('iiiiss', $attempts, $attempts, $threshold, $lockMinutes, $scope, $subjectHash);
     $update->execute();
 }
 function loginClientAddress(): string
@@ -71,14 +71,13 @@ function loginClientAddress(): string
     }
     return filter_var($address, FILTER_VALIDATE_IP) ? $address : 'unknown';
 }
-$statusRequest = ($_POST['action'] ?? null) === 'lockout_status';
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Allow: POST');
     loginError('Please submit the login form.', 405);
 }
 $username = is_string($_POST['username'] ?? null) ? trim($_POST['username']) : '';
 $password = $_POST['password'] ?? null;
-if ($username === '' || (!$statusRequest && (!is_string($password) || $password === ''))) {
+if ($username === '' || !is_string($password) || $password === '') {
     loginError('Please fill in both username and password.');
 }
 try {
@@ -125,30 +124,17 @@ try {
         $state['subject_hash'] = $subjectHash;
         $states[$scope] = $state;
     }
-    if ($statusRequest) {
-        $conn->commit();
-        $isAccountLocked = $states['account']['locked_until'] !== null;
-        exit(json_encode([
-            'status' => 'status',
-            'locked' => $isAccountLocked,
-            'remaining_seconds' => $isAccountLocked
-                ? (int) $states['account']['remaining_seconds']
-                : 0,
-        ]));
-    }
     if ($states['account']['locked_until'] !== null) {
         $conn->commit();
-        loginError('Too many failed login attempts. Please try again in', 429, [
+        loginError('Too many failed login attempts. Please try again after 5 minutes.', 429, [
             'remaining_attempts' => 0,
             'remaining_seconds' => (int) $states['account']['remaining_seconds'],
-            'lockout_type' => 'account',
         ]);
     }
     if ($states['ip']['locked_until'] !== null) {
         $conn->commit();
         loginError('Too many login attempts from this network. Please try again later.', 429, [
             'remaining_seconds' => (int) $states['ip']['remaining_seconds'],
-            'lockout_type' => 'ip',
         ]);
     }
 
@@ -181,28 +167,18 @@ try {
     }
     $accountAttempts = (int) $states['account']['failed_attempts'] + 1;
     $ipAttempts = (int) $states['ip']['failed_attempts'] + 1;
-    recordLoginFailure($conn, 'account', $accountHash, $accountAttempts, 5, 120);
-    recordLoginFailure($conn, 'ip', $ipHash, $ipAttempts, 20, 900);
-    $accountLockSeconds = 0;
-    $ipLockSeconds = 0;
-    if ($accountAttempts >= 5) {
-        $accountLockSeconds = (int) loginRateLimitState($conn, 'account', $accountHash)['remaining_seconds'];
-    }
-    if ($ipAttempts >= 20) {
-        $ipLockSeconds = (int) loginRateLimitState($conn, 'ip', $ipHash)['remaining_seconds'];
-    }
+    recordLoginFailure($conn, 'account', $accountHash, $accountAttempts, 5, 5);
+    recordLoginFailure($conn, 'ip', $ipHash, $ipAttempts, 20, 15);
     $conn->commit();
     if ($accountAttempts >= 5) {
-        loginError('Too many failed login attempts. Please try again in', 429, [
+        loginError('Too many failed login attempts. Please try again after 5 minutes.', 429, [
             'remaining_attempts' => 0,
-            'remaining_seconds' => $accountLockSeconds,
-            'lockout_type' => 'account',
+            'remaining_seconds' => 300,
         ]);
     }
     if ($ipAttempts >= 20) {
         loginError('Too many login attempts from this network. Please try again later.', 429, [
-            'remaining_seconds' => $ipLockSeconds,
-            'lockout_type' => 'ip',
+            'remaining_seconds' => 900,
         ]);
     }
     loginError('Invalid username or password.', 401, [
