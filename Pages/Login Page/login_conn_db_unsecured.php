@@ -1,7 +1,22 @@
 <?php
-ini_set('display_errors', '1');
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
+
+function labLoginDiagnosticId(): string
+{
+    return bin2hex(random_bytes(16));
+}
+
+function logLabLoginDiagnostic(string $category, string $correlationId): void
+{
+    error_log(json_encode([
+        'event' => 'login_backend_error',
+        'category' => $category,
+        'correlation_id' => $correlationId,
+    ]));
+}
 
 function labLoginError(string $message, int $status): never
 {
@@ -100,6 +115,15 @@ try {
         : '/Pages/Landing%20Page/Landing%20Page%20Men%27s%20Day.php';
     exit(json_encode(['status' => 'success', 'message' => 'Lab authentication succeeded.', 'redirect' => $redirect]));
 } catch (Throwable $error) {
-    // Temporarily expose the real error for debugging
-    labLoginError('DEBUG ERROR: ' . $error->getMessage() . ' on line ' . $error->getLine(), 503);
+    $category = $error instanceof mysqli_sql_exception
+        ? 'database_error'
+        : 'unexpected_backend_error';
+    $correlationId = labLoginDiagnosticId();
+    logLabLoginDiagnostic($category, $correlationId);
+    http_response_code(503);
+    exit(json_encode([
+        'status' => 'error',
+        'message' => 'Unable to sign in right now. Please try again later.',
+        'correlation_id' => $correlationId,
+    ]));
 }

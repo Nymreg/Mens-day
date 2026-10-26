@@ -11,16 +11,23 @@ assert 'CREATE TABLE `login_rate_limits`' in schema
 assert "PRIMARY KEY (`scope`, `subject_hash`)" in schema
 assert 'TIMESTAMPDIFF(SECOND, UTC_TIMESTAMP(), locked_until)' in handler
 assert 'FOR UPDATE' in handler
-assert 'DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? MINUTE)' in handler
-assert "recordLoginFailure($conn, 'account', $accountHash, $accountAttempts, 5, 5)" in handler
-assert "recordLoginFailure($conn, 'ip', $ipHash, $ipAttempts, 20, 15)" in handler
+assert 'DATE_ADD(UTC_TIMESTAMP(), INTERVAL ? SECOND)' in handler
+assert "recordLoginFailure($conn, 'account', $accountHash, $accountAttempts, 5, 120)" in handler
+assert "recordLoginFailure($conn, 'ip', $ipHash, $ipAttempts, 20, 900)" in handler
 assert "'remaining_attempts' => 5 - $accountAttempts" in handler
-assert "'remaining_seconds' => 300" in handler
+assert "'remaining_seconds' => $accountLockSeconds" in handler
+assert "($_POST['action'] ?? null) === 'lockout_status'" in handler
+assert "'remaining_seconds' => (int) $states['account']['remaining_seconds']" in handler
+assert "'Too many failed login attempts. Please try again in'" in handler
 assert "appValidCsrf($_POST['csrf_token'] ?? null)" in handler
 assert "prepare('SELECT id, username, password FROM users WHERE username = ?')" in handler
 assert "getenv('LOGIN_RATE_LIMIT_KEY')" in handler
+assert "strlen($rateLimitKey) < 32" in handler
 assert 'hash_hmac(' in handler
 assert 'Warning: ${remainingAttempts} login attempts remaining.' in script
 assert 'performance.now()' in script
+assert 'login-locked-username' in script
+assert 'action", "lockout_status"' in script
+assert 'Too many failed login attempts. Please try again in ${formatTime(remaining)}.' in script
 assert 'id="login-feedback"' in form
 print('PASS: database rate limits, parameterized authentication, CSRF, attempt feedback, and server-timed countdown source checks')
