@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const submitButton = form.querySelector('button[type="submit"]');
   const secureHandler = new URL(form.action, window.location.href).pathname.endsWith("/login_conn_db.php");
   let countdownTimer;
-  let lockDeadline = 0;
   let lockedUsername = "";
   let isSubmitting = false;
   let isCheckingLockout = false;
@@ -51,22 +50,10 @@ document.addEventListener("DOMContentLoaded", function () {
     feedback.textContent = message;
   }
 
-  function showCountdown(message, seconds) {
-    clearInterval(countdownTimer);
-    const deadline = performance.now() + Math.max(0, seconds) * 1000;
-    const render = () => {
-      const remaining = Math.max(0, Math.ceil((deadline - performance.now()) / 1000));
-      feedback.textContent = `${message} (${formatTime(remaining)} remaining)`;
-      if (remaining === 0) clearInterval(countdownTimer);
-    };
-    countdownTimer = setInterval(render, 1000);
-    render();
-  }
-
-  function showAccountLockout(seconds, username) {
+  function showAccountLockout(serverRemainingSeconds, username) {
     clearInterval(countdownTimer);
     lockedUsername = username.trim().toLowerCase();
-    lockDeadline = performance.now() + Math.max(0, seconds) * 1000;
+    const lockDeadline = performance.now() + Math.max(0, serverRemainingSeconds) * 1000;
     rememberUsername(username);
     const render = () => {
       const remaining = Math.max(0, Math.ceil((lockDeadline - performance.now()) / 1000));
@@ -181,8 +168,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (data.lockout_type === "account" &&
             Number.isInteger(data.remaining_seconds)) {
           showAccountLockout(data.remaining_seconds, username);
-        } else if (Number.isInteger(data.remaining_seconds)) {
-          showCountdown(message, data.remaining_seconds);
         } else {
           showFeedback(message);
         }

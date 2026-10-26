@@ -22,34 +22,6 @@ image starts Apache in the foreground. Set these environment variables:
 | DB_SSL_CA | `/etc/secrets/ca.pem` |
 | PORT | `80` (matches Apache's listening port) |
 | ADMIN_USER_IDS | Comma-separated trusted `mens_daydb.users.id` values, e.g. `11,25`; unset/empty grants nobody admin access. |
-| LOGIN_RATE_LIMIT_KEY | At least 32 random bytes encoded as a secret value; keep stable across restarts and instances. |
-| TRUST_PROXY_HEADERS | Set to `true` only when a trusted reverse proxy overwrites `X-Forwarded-For`; otherwise leave unset. |
-
-Generate the key on a trusted administrator workstation with a cryptographic
-random generator. For example, `openssl rand -hex 32` produces 32 random bytes
-encoded as 64 hexadecimal characters, meeting the login handler's minimum
-32-byte string-length check. In the Render dashboard, open the production
-Docker Web Service, go to **Environment**, add `LOGIN_RATE_LIMIT_KEY` with that
-generated value, and save the changes. Keep it stable across deployments and
-instances; do not put it in source code, a committed `.env` file, or client-side
-code. Saving the environment change triggers a deploy; if Render prompts for a
-deploy, redeploy the service. The container process passes Render environment
-variables through to PHP, where the handler reads this one with `getenv()`.
-
-To verify the setting without exposing it, use the Render Shell for the running
-service (if available) and run:
-
-```sh
-php -r '$key = getenv("LOGIN_RATE_LIMIT_KEY"); echo is_string($key) && strlen($key) >= 32 ? "LOGIN_RATE_LIMIT_KEY present and valid\n" : "LOGIN_RATE_LIMIT_KEY missing or too short\n";'
-```
-
-This reports only whether the configured value passes the handler's length
-check; it does not establish the value's entropy. Generate it as above. Then
-submit a login using an authorized test account and confirm the handler passes
-the rate-limit configuration check. Review Render logs for subsequent sanitized
-database or backend diagnostics. Do not treat local environment variables as
-evidence of the Render configuration, and do not claim deployment recovery
-until login has been tested against the deployed service.
 
 Download the service CA certificate from Aiven and add its complete PEM contents
 as a Render secret file named `ca.pem`. Do not commit credentials or certificates.
@@ -58,14 +30,10 @@ No DB_NAME variable is needed: application calls retain `mens_daydb` and `produc
 If Aiven IP filtering is enabled, allow your Render service's outbound IP ranges
 and the workstation used for imports.
 
-Before deploying the login rate limiter, apply `Database Schema/login_rate_limits.sql`
-to the existing `mens_daydb` database using the MySQL client and verified TLS
-connection. The migration is additive and creates the persistent account/IP
-failure buckets. Do not enable `TRUST_PROXY_HEADERS` unless the hosting proxy
-strips untrusted forwarded headers and supplies the client address itself. Keep
-`ENABLE_SQLI_LAB` unset on the normal website; the isolated demonstration handler
-does not use the secure login limiter. Configure `LOGIN_RATE_LIMIT_KEY` in the
-hosting secret store; changing it invalidates existing rate-limit buckets.
+Login protection: 5 wrong passwords lock the account for 2 minutes. Run
+`Database Schema/login_rate_limits.sql` once on the `mens_daydb` database.
+Keep `ENABLE_SQLI_LAB` unset on the normal website; the isolated demonstration
+handler does not use the secure login limiter.
 
 ## Import commands (PowerShell)
 
@@ -150,20 +118,8 @@ Docker is unavailable locally, so the new image checks must execute on Render.
    is needed if the deployed users.password is already VARCHAR(255).
    Admin pages/actions now enforce ADMIN_USER_IDS on the server; usernames never
    grant admin access. Configure trusted IDs and sign in again after deployment.
-5. Confirm the `login_rate_limits` table exists in `mens_daydb` by applying
-   `Database Schema/login_rate_limits.sql` before testing; the migration is not
-   verified by a local source check. Also verify `LOGIN_RATE_LIMIT_KEY` is set
-   in Render without printing its value. For login-throttle verification, use a
-   disposable account and submit four incorrect passwords: the response should
-   report 4, 3, 2, then 1 attempts remaining. A fifth failure should start a
-   two-minute account lock and show a backend-timed countdown; refreshing the
-   login page should resume the actual remaining time. The correct password
-   must still be rejected until expiry. After expiry, verify correct credentials
-   work and clear the account's previous failures. Test the IP limiter with
-   disposable usernames from one client address: its twentieth failed request
-   should start a 15-minute network cooldown. Unknown usernames must receive
-   the same invalid-credential message as wrong passwords. Missing or invalid
-   CSRF must still be rejected. Never test with production accounts.
+5. Run `Database Schema/login_rate_limits.sql` once on `mens_daydb`. Test login
+   with a disposable account; do not use production accounts.
 6. PHP sessions are currently filesystem-based. Redeploys can log users out;
    multiple instances need shared session storage.
 
